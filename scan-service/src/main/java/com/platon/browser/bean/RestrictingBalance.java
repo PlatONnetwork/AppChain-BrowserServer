@@ -1,7 +1,5 @@
 package com.platon.browser.bean;
 
-import com.platon.utils.Numeric;
-
 import java.math.BigInteger;
 import java.util.List;
 
@@ -16,35 +14,35 @@ public class RestrictingBalance {
 
     private BigInteger freeBalance;
 
-    private BigInteger lockBalance;
+    private BigInteger restrictingPlanLockedAmount;
 
-    private BigInteger pledgeBalance;
+    private BigInteger restrictingPlanPledgeAmount;
 
     /**
      * 委托锁定待提取中余额部分
      */
-    private BigInteger dlFreeBalance;
+    private BigInteger delegationUnLockedFreeBalance;
 
     /**
      * 委托锁定待提取中锁仓部分
      */
-    private BigInteger dlRestrictingBalance;
+    private BigInteger delegationUnLockedRestrictingPlanAmount;
 
     /**
      * 委托锁定中锁定的列表
      */
     private List<DlLock> dlLocks;
 
-    public void setFreeBalance(String freeBalance) {
-        this.freeBalance = Numeric.decodeQuantity(freeBalance);
+    public void setFreeBalance(BigInteger freeBalance) {
+        this.freeBalance = freeBalance;
     }
 
-    public void setLockBalance(String lockBalance) {
-        this.lockBalance = Numeric.decodeQuantity(lockBalance);
+    public void setRestrictingPlanLockedAmount(BigInteger restrictingPlanLockedAmount) {
+        this.restrictingPlanLockedAmount = restrictingPlanLockedAmount;
     }
 
-    public void setPledgeBalance(String pledgeBalance) {
-        this.pledgeBalance = Numeric.decodeQuantity(pledgeBalance);
+    public void setRestrictingPlanPledgeAmount(BigInteger restrictingPlanPledgeAmount) {
+        this.restrictingPlanPledgeAmount = restrictingPlanPledgeAmount;
     }
 
     public String getAccount() {
@@ -59,28 +57,28 @@ public class RestrictingBalance {
         return freeBalance;
     }
 
-    public BigInteger getLockBalance() {
-        return lockBalance;
+    public BigInteger getRestrictingPlanLockedAmount() {
+        return restrictingPlanLockedAmount;
     }
 
-    public BigInteger getPledgeBalance() {
-        return pledgeBalance;
+    public BigInteger getRestrictingPlanPledgeAmount() {
+        return restrictingPlanPledgeAmount;
     }
 
-    public BigInteger getDlFreeBalance() {
-        return dlFreeBalance;
+    public BigInteger getDelegationUnLockedFreeBalance() {
+        return delegationUnLockedFreeBalance;
     }
 
-    public void setDlFreeBalance(String dlFreeBalance) {
-        this.dlFreeBalance = Numeric.decodeQuantity(dlFreeBalance);
+    public void setDelegationUnLockedFreeBalance(BigInteger delegationUnLockedFreeBalance) {
+        this.delegationUnLockedFreeBalance = delegationUnLockedFreeBalance;
     }
 
-    public BigInteger getDlRestrictingBalance() {
-        return dlRestrictingBalance;
+    public BigInteger getDelegationUnLockedRestrictingPlanAmount() {
+        return delegationUnLockedRestrictingPlanAmount;
     }
 
-    public void setDlRestrictingBalance(String dlRestrictingBalance) {
-        this.dlRestrictingBalance = Numeric.decodeQuantity(dlRestrictingBalance);
+    public void setDelegationUnLockedRestrictingPlanAmount(BigInteger delegationUnLockedRestrictingPlanAmount) {
+        this.delegationUnLockedRestrictingPlanAmount = delegationUnLockedRestrictingPlanAmount;
     }
 
     public List<DlLock> getDlLocks() {

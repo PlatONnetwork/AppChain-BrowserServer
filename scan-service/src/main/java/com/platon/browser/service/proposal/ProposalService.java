@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * @description: 提案服务
@@ -34,8 +35,8 @@ public class ProposalService {
      * @return
      * @throws Exception
      */
-    public ProposalParticipantStat getProposalParticipantStat(String proposalHash, String blockHash) throws ContractInvokeException, BlankResponseException {
-        return specialApi.getProposalParticipants(platOnClient.getWeb3jWrapper().getWeb3j(), proposalHash, blockHash);
+    public ProposalParticipantStat getProposalParticipantStat(String proposalHash, String blockHash) throws BlankResponseException, ContractInvokeException, IOException {
+        return specialApi.getProposalParticipants(platOnClient.getWeb3jWrapper(), proposalHash, blockHash);
     }
 
     /**

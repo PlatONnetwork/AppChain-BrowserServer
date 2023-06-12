@@ -1,7 +1,5 @@
 package com.platon.browser.bean;
 
-import com.platon.utils.Numeric;
-
 import java.math.BigInteger;
 
 /**
@@ -14,7 +12,7 @@ public class DlLock {
     /**
      * 锁仓金额
      */
-    private BigInteger lockBalance;
+    private BigInteger restrictingPlanAmount;
 
     /**
      * 自由金金额
@@ -24,30 +22,30 @@ public class DlLock {
     /**
      * 解锁结算周期
      */
-    private BigInteger epoch;
+    private BigInteger expiredEpoch;
 
-    public BigInteger getLockBalance() {
-        return lockBalance;
+    public BigInteger getRestrictingPlanAmount() {
+        return restrictingPlanAmount;
     }
 
-    public void setLockBalance(String lockBalance) {
-        this.lockBalance = Numeric.decodeQuantity(lockBalance);
+    public void setRestrictingPlanAmount(BigInteger restrictingPlanAmount) {
+        this.restrictingPlanAmount = restrictingPlanAmount;
     }
 
     public BigInteger getFreeBalance() {
         return freeBalance;
     }
 
-    public void setFreeBalance(String freeBalance) {
-        this.freeBalance = Numeric.decodeQuantity(freeBalance);
+    public void setFreeBalance(BigInteger freeBalance) {
+        this.freeBalance = freeBalance;
     }
 
-    public BigInteger getEpoch() {
-        return epoch;
+    public BigInteger getExpiredEpoch() {
+        return expiredEpoch;
     }
 
-    public void setEpoch(BigInteger epoch) {
-        this.epoch = epoch;
+    public void setExpiredEpoch(BigInteger expiredEpoch) {
+        this.expiredEpoch = expiredEpoch;
     }
 
 }
