@@ -65,7 +65,7 @@ xxljob 2.3.0
 ```bash
 scan-agent,scan-api,scan-job
 1-apollo方式:application-apollo.yml
-2-非apollo方式:application-platon.yml
+2-非apollo方式:application-appchain.yml
 以上两种配置方式选择一个即可
 ```
 

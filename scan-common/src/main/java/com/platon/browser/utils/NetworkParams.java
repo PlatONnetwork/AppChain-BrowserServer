@@ -14,10 +14,10 @@ public class NetworkParams {
     @Value("${platon.chainId}")
     private long chainId;
 
-    @Value("${platon.addressPrefix:lat}")
+    @Value("${platon.addressPrefix:HSK}")
     private String hrp;
 
-    @Value("${platon.valueUnit:LAT}")
+    @Value("${platon.valueUnit:hashi}")
     private String unit;
 
     @PostConstruct
