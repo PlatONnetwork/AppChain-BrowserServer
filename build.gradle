@@ -110,7 +110,7 @@ subprojects {
 
         // 复制配置文件
         task copyConf(type: Copy) {
-            from('src/main/resources/application-platon.yml')
+            from('src/main/resources/application-appchain.yml')
             from('src/main/resources/application-apollo.yml')
             from('../jasypt.properties')
             from('status.hook')

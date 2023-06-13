@@ -1,7 +1,7 @@
 #1.1.4配置已经迁移到apollo，以下为完整的配置模板，不想使用apollo，可使用以下配置即可
 spring:
   application:
-    name: scan-job
+    name: scan-agent
   #数据源配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -9,6 +9,30 @@ spring:
     url: jdbc:mysql://192.168.9.191:3306/scan_${profile}?useUnicode=true&characterEncoding=utf-8&useSSL=false&useTimezone=true&serverTimezone=GMT%2B8&allowMultiQueries=true
     username: ENC(bpshgjWOgn2d+oGmSTBPNA==)
     password: ENC(bpshgjWOgn2d+oGmSTBPNA==)
+  #Redis键配置
+  redis:
+    password: ENC(D4K/Kxv2c2MT7FaaT+ZHQswHs8KvRm6N)
+    database: 0
+    cluster:
+      max-redirects: 3
+      nodes: 192.168.9.191:7001,192.168.9.191:7002,192.168.9.191:7003,192.168.9.191:7004,192.168.9.191:7005,192.168.9.191:7006
+    key:
+      #最多存储多少条数据
+      max-item: 500000
+      #区块列表
+      blocks: ${platon.redis-namespace}:blocks
+      #交易列表
+      transactions: ${platon.redis-namespace}:transactions
+      #统计信息
+      networkStat: ${platon.redis-namespace}:networkStat
+      #内部转账交易
+      transferTx: ${platon.redis-namespace}:transferTx
+      #erc20交易
+      erc20Tx: ${platon.redis-namespace}:erc20Tx
+      #erc721交易
+      erc721Tx: ${platon.redis-namespace}:erc721Tx
+      #erc1155交易
+      erc1155Tx: ${platon.redis-namespace}:erc1155Tx
   #ES索引配置
   elasticsearch:
     high-level-client:
@@ -32,21 +56,53 @@ mybatis:
   mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
   # 实体类别名配置（注意：对应实体类的路径）
   type-aliases-package: com.platon.browser.dao.entity
-# 当前激活的配置名称(请不要修改)
-profile: platon
+profile: appchain
+# 内存环形缓冲区大小，必须是2的指数倍
+disruptor:
+  queue:
+    # 区块事件环形缓冲区大小
+    blockBufferSize: 1024
+    # 采集事件环形缓冲区大小
+    collectionBufferSize: 1024
+    # 数据补充环形缓冲区大小
+    complementBufferSize: 1024
+    # gas price估算消息环形缓冲区大小
+    gasEstimateBufferSize: 1024
+    # 数据持久化环形缓冲区大小
+    persistenceBufferSize: 1024
+    #每次处理多少个
+    persistenceBatchSize: 10
+#日志配置
+logging:
+  #日志级别
+  level:
+    org.springframework: info
+    org.springframework.retry: info
+    com.platon.browser: info
+    com.platon.browser.bootstrap: info
+    com.platon.browser.collection: info
+    com.platon.browser.collection.queue.handler: info
+    com.platon.browser.common: info
+    com.platon.browser.complement: info
+    com.platon.browser.complement.handler: info
+    com.platon.browser.complement.converter: info
+    com.platon.browser.persistence: info
+    com.platon.browser.persistence.handler: info
+    com.platon.browser.persistence.queue.handler: info
+    com.platon.browser.task: info
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
-  addressPrefix: lat
+  addressPrefix: HSK
   # 金额显示单位
-  valueUnit: LAT
+  valueUnit: hashi
   # 交易输入参数并行解码线程数
   txLogDecodeThreadNum: 200
   # Web3j访问地址
   web3j:
     #HTTP或WS
     protocol: WS
-    addresses: 192.168.120.151:7789,192.168.120.151:7790
+    addresses: 192.168.9.139:7789
   # 质押节点统计年化率最多取多少个连续周期
   maxSettlePeriodCount4AnnualizedRateStat: 4
   #PlatON初始总发行量(LAT)
@@ -82,25 +138,38 @@ platon:
   #keyBase api
   keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
   #链id
-  chainId: 2022041901
+  chainId: 100
   #同步时的索引查询分页参数配置
   paging:
     erc20-transaction:
       pageSize: 2000
       pageCount: 250
+  #Redis命名空间
+  redis-namespace: browser:${profile}
   #Es索引命名空间
   es-namespace: browser_${profile}
+  #0出块等待的循环访问时间(秒)
+  zeroBlockNumber:
+    wait-time: 60
+# v0.15.0.0版本新增功能涉及的配置
+v0150:
+  #锁仓最小释放金额参数生效版本
+  restrictingMinimumReleaseActiveVersion: 3584
+  #调账生效版本
+  adjustmentActiveVersion: 3840
+  #调账提案ID
+  adjustmentPipId: 14
+  #调账日志输出文件
+  adjustLogFilePath: ./logs/staking-delegate-adjust.log
 task:
-  #允许更新的最大地址数量
-  maxAddressCount: 5004
-  #每次批量查询锁仓余额的最大数量
-  maxBatchSize: 100
-#日志配置
-logging:
-  #日志级别
-  level:
-    org.springframework: error
-    com.platon.browser.task: debug
+  #地址统计任务批次大小
+  addressBatchSize: 1000
+  #agent与实际链上区块号相差多少个块号时触发调整操作
+  gapForAdjust: 20
+  #未追上链,批量入ES和Redis的缓存大小
+  esRedisNotCatchupBatchSize: 10
+  #已追上链,批量入ES和Redis的缓存大小
+  esRedisCatchupBatchSize: 1
 xxl:
   job:
     admin:
@@ -112,10 +181,10 @@ xxl:
     logretentiondays: 90
     executor:
       #执行器AppName
-      appname: dev-platon-job
-      ip: 192.168.21.194
+      appname: appchain-scan-agent
+      ip: 192.168.21.114
       #执行器端口号
-      port: 9997
+      port: 9999
       #执行器运行日志文件存储磁盘路径
       logpath: ./logs/jobhandler
       #执行器日志文件保存天数
