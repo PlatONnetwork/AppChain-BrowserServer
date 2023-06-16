@@ -48,16 +48,6 @@ public class EpochInfo {
     private BigDecimal avgPackTime;
 
     /**
-     * 当前结算周期的出块奖励
-     */
-    private BigDecimal curPackageReward;
-
-    /**
-     * 当前结算周期的质押奖励
-     */
-    private BigDecimal curStakingReward;
-
-    /**
      * 下一个结算周期的出块奖励
      */
     private BigDecimal nextPackageReward;
@@ -126,21 +116,6 @@ public class EpochInfo {
 
     }
 
-    public BigDecimal getCurPackageReward() {
-        return curPackageReward;
-    }
-
-    public void setCurPackageReward(BigInteger curPackageReward) {
-        this.curPackageReward = new BigDecimal(null == curPackageReward ? new BigInteger("0"):curPackageReward);
-    }
-
-    public BigDecimal getCurStakingReward() {
-        return curStakingReward;
-    }
-
-    public void setCurStakingReward(BigInteger curStakingReward) {
-        this.curStakingReward = new BigDecimal(null == curStakingReward ? new BigInteger("0"):curStakingReward);
-    }
 
     public BigDecimal getNextPackageReward() {
         return nextPackageReward;

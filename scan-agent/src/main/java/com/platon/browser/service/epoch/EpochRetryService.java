@@ -223,7 +223,7 @@ public class EpochRetryService {
             // 前一结算周期质押奖励轮换
             preStakeReward = stakeReward;
             // 计算当前结算周期内每个验证人的质押奖励
-            stakeReward = handleStakeReward(preSettleEpochLastBlockNumber, currentEpoch.subtract(BigInteger.ONE), epochInfo.getCurStakingReward());
+            stakeReward = handleStakeReward(preSettleEpochLastBlockNumber, currentEpoch.subtract(BigInteger.ONE), epochInfo.getStakingReward());
             ConfigChange configChange = new ConfigChange();
             configChange.setAvgPackTime(epochInfo.getAvgPackTime());
             configChange.setBlockReward(epochInfo.getNextPackageReward());
