@@ -3,7 +3,9 @@ package com.platon.browser.service.epoch;
 import com.platon.browser.bean.CommonConstant;
 import com.platon.browser.bean.ConfigChange;
 import com.platon.browser.bean.EpochInfo;
+import com.platon.browser.bean.NodeItem;
 import com.platon.browser.cache.NetworkStatCache;
+import com.platon.browser.cache.NodeCache;
 import com.platon.browser.client.PlatOnClient;
 import com.platon.browser.client.SpecialApi;
 import com.platon.browser.config.BlockChainConfig;
@@ -11,6 +13,7 @@ import com.platon.browser.constant.Browser;
 import com.platon.browser.dao.entity.NetworkStat;
 import com.platon.browser.exception.BusinessException;
 import com.platon.browser.exception.CandidateException;
+import com.platon.browser.exception.NoSuchBeanException;
 import com.platon.browser.utils.EpochUtil;
 import com.platon.browser.utils.HexUtil;
 import com.platon.contracts.ppos.dto.CallResponse;
@@ -18,6 +21,7 @@ import com.platon.contracts.ppos.dto.resp.Node;
 import com.platon.protocol.Web3j;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -92,6 +96,9 @@ public class EpochRetryService {
 
     @Resource
     private NetworkStatCache networkStatCache;
+    @Resource
+    private NodeCache nodeCache;
+
 
     /**
      * 增发周期变更:
@@ -158,7 +165,18 @@ public class EpochRetryService {
             curNodes.forEach(n -> n.setNodeId(HexUtil.prefix(n.getNodeId())));
             curValidators.clear();
             curValidators.addAll(curNodes);
+            curNodes.forEach(node -> {
+                NodeItem nodeItem;
+                try {
+                    nodeItem = nodeCache.getNode(node.getNodeId());
+                    nodeItem.setNodeName(StringUtils.isBlank(node.getNodeName()) ? nodeItem.getNodeName() : node.getNodeName());
+                } catch (NoSuchBeanException e) {
+                    nodeItem = NodeItem.builder().nodeId(node.getNodeId()).nodeName(node.getNodeName()).build();
+                    nodeCache.addNode(nodeItem);
+                }
+                nodeCache.addNode(nodeItem);
 
+            });
             // 更新期望出块数：期望出块数=共识周期块数/实际参与共识节点数
             expectBlockCount = chainConfig.getConsensusPeriodBlockCount().divide(BigInteger.valueOf(curValidators.size())).longValue();
         } catch (Exception e) {
