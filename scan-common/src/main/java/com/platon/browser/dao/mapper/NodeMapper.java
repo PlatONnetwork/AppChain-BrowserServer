@@ -3,6 +3,8 @@ package com.platon.browser.dao.mapper;
 import com.platon.browser.dao.entity.Node;
 import com.platon.browser.dao.entity.NodeExample;
 import java.util.List;
+
+import com.platon.browser.dao.param.ppos.StakeCreate;
 import org.apache.ibatis.annotations.Param;
 
 public interface NodeMapper {
@@ -51,4 +53,6 @@ public interface NodeMapper {
      * @project https://github.com/itfsw/mybatis-generator-plugin
      */
     int batchInsertSelective(@Param("list") List<Node> list, @Param("selective") Node.Column ... selective);
+
+    int insertOrUpdateNode(StakeCreate stakeCreate);
 }

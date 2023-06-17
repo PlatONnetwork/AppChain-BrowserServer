@@ -11,9 +11,15 @@ import com.platon.browser.client.SpecialApi;
 import com.platon.browser.config.BlockChainConfig;
 import com.platon.browser.constant.Browser;
 import com.platon.browser.dao.entity.NetworkStat;
+import com.platon.browser.dao.mapper.NodeMapper;
+import com.platon.browser.dao.param.BusinessParam;
+import com.platon.browser.dao.param.ppos.StakeCreate;
+import com.platon.browser.enums.InnerContractAddrEnum;
 import com.platon.browser.exception.BusinessException;
 import com.platon.browser.exception.CandidateException;
 import com.platon.browser.exception.NoSuchBeanException;
+import com.platon.browser.service.ppos.StakeEpochService;
+import com.platon.browser.utils.ChainVersionUtil;
 import com.platon.browser.utils.EpochUtil;
 import com.platon.browser.utils.HexUtil;
 import com.platon.contracts.ppos.dto.CallResponse;
@@ -59,6 +65,9 @@ public class EpochRetryService {
 
     @Resource
     private SpecialApi specialApi;
+
+    @Resource
+    NodeMapper nodeMapper;
 
     // 注意：以下所有属性在其所属周期内都是不变的，只有在各自周期变更时才更新各自的值
     // ******* 增发周期相关属性 START *******
@@ -175,7 +184,7 @@ public class EpochRetryService {
                     nodeCache.addNode(nodeItem);
                 }
                 nodeCache.addNode(nodeItem);
-
+                insertNode(node);
             });
             // 更新期望出块数：期望出块数=共识周期块数/实际参与共识节点数
             expectBlockCount = chainConfig.getConsensusPeriodBlockCount().divide(BigInteger.valueOf(curValidators.size())).longValue();
@@ -374,4 +383,31 @@ public class EpochRetryService {
         networkStatCache.updateByEpochChange(summary);
     }
 
+
+    public void insertNode(Node node){
+        StakeCreate businessParam = StakeCreate.builder()
+                .nodeId(node.getNodeId())
+                .stakingHes(new BigDecimal("0"))
+                .nodeName(node.getNodeName())
+                .externalId(StringUtils.isEmpty(node.getExternalId()) ?"":node.getExternalId())
+                .benefitAddr(StringUtils.isEmpty(node.getBenifitAddress()) ?"": node.getBenifitAddress())
+                .programVersion(null == node.getProgramVersion() ?"":node.getProgramVersion().toString())
+                .bigVersion(ChainVersionUtil.toBigVersion(node.getProgramVersion()).toString())
+                .webSite(StringUtils.isEmpty(node.getWebsite()) ?"": node.getWebsite())
+                .details(StringUtils.isEmpty(node.getDetails()) ?"": node.getDetails())
+                .isInit(InnerContractAddrEnum.INCENTIVE_POOL_CONTRACT.getAddress().equalsIgnoreCase(node.getBenifitAddress()) ?
+                        BusinessParam.YesNoEnum.YES.getCode()
+                        : BusinessParam.YesNoEnum.NO.getCode())
+                .stakingBlockNum(node.getStakingBlockNum())
+                .stakingTxIndex(null == node.getStakingTxIndex() ? 0:node.getStakingTxIndex().intValue())
+                .stakingAddr(StringUtils.isEmpty(node.getStakingAddress()) ?"":node.getStakingAddress())
+                .joinTime(new Date())
+                .delegateRewardPer(null == node.getRewardPer() ? 0:node.getRewardPer().intValue())
+                .unStakeFreezeDuration(0)
+                .unStakeEndBlock(new BigInteger("0"))
+                .settleEpoch(null == node.getStakingEpoch() ? 0:node.getStakingEpoch().intValue())
+                .build();
+
+        nodeMapper.insertOrUpdateNode(businessParam);
+    }
 }
