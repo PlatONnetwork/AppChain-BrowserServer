@@ -105,7 +105,7 @@ logging:
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
-  addressPrefix: HSK
+  addressPrefix: hsk
   # 金额显示单位
   valueUnit: hashi
   # 交易输入参数并行解码线程数
