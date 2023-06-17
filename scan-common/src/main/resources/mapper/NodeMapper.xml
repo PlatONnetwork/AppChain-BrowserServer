@@ -1533,7 +1533,6 @@
       `staking_tx_index` = #{stakingTxIndex},
       `staking_addr` = #{stakingAddr},
       `staking_hes` = #{stakingHes},
-      /*`node_name` = #{nodeName},*/
       `external_id` = #{externalId},
       `benefit_addr` = #{benefitAddr},
       `program_version` = #{programVersion},
