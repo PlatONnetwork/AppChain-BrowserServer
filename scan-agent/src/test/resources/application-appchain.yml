@@ -92,7 +92,6 @@ logging:
     com.platon.browser.task: info
 #PlatOn相关配置
 platon:
-  rootChainAddressPrefix: lat
   # 地址HRP前缀
   addressPrefix: hsk
   # 金额显示单位

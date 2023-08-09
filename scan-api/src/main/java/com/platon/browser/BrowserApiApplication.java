@@ -55,6 +55,9 @@ public class BrowserApiApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        if (AppStatusUtil.isRunningJUnitTest()){
+            return;
+        }
         if (AppStatusUtil.isStopped()) {
             return;
         }

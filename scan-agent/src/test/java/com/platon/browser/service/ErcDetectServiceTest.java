@@ -26,7 +26,7 @@ import java.util.List;
 
 @Slf4j
 @SpringBootTest(classes = { AgentApplication.class })
-@ActiveProfiles("appchain")
+@ActiveProfiles("hskchain")
 public class ErcDetectServiceTest {
 
     @Resource
