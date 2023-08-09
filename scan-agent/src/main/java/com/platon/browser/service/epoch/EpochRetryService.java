@@ -3,7 +3,6 @@ package com.platon.browser.service.epoch;
 import com.platon.browser.bean.CommonConstant;
 import com.platon.browser.bean.ConfigChange;
 import com.platon.browser.bean.EpochInfo;
-import com.platon.browser.bean.NodeItem;
 import com.platon.browser.cache.NetworkStatCache;
 import com.platon.browser.cache.NodeCache;
 import com.platon.browser.client.PlatOnClient;
@@ -12,14 +11,8 @@ import com.platon.browser.config.BlockChainConfig;
 import com.platon.browser.constant.Browser;
 import com.platon.browser.dao.entity.NetworkStat;
 import com.platon.browser.dao.mapper.NodeMapper;
-import com.platon.browser.dao.param.BusinessParam;
-import com.platon.browser.dao.param.ppos.StakeCreate;
-import com.platon.browser.enums.InnerContractAddrEnum;
 import com.platon.browser.exception.BusinessException;
 import com.platon.browser.exception.CandidateException;
-import com.platon.browser.exception.NoSuchBeanException;
-import com.platon.browser.service.ppos.StakeEpochService;
-import com.platon.browser.utils.ChainVersionUtil;
 import com.platon.browser.utils.EpochUtil;
 import com.platon.browser.utils.HexUtil;
 import com.platon.contracts.ppos.dto.CallResponse;
@@ -27,7 +20,6 @@ import com.platon.contracts.ppos.dto.resp.Node;
 import com.platon.protocol.Web3j;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -174,18 +166,7 @@ public class EpochRetryService {
             curNodes.forEach(n -> n.setNodeId(HexUtil.prefix(n.getNodeId())));
             curValidators.clear();
             curValidators.addAll(curNodes);
-            curNodes.forEach(node -> {
-                NodeItem nodeItem;
-                try {
-                    nodeItem = nodeCache.getNode(node.getNodeId());
-                    nodeItem.setNodeName(StringUtils.isBlank(node.getNodeName()) ? nodeItem.getNodeName() : node.getNodeName());
-                } catch (NoSuchBeanException e) {
-                    nodeItem = NodeItem.builder().nodeId(node.getNodeId()).nodeName(node.getNodeName()).build();
-                    nodeCache.addNode(nodeItem);
-                }
-                nodeCache.addNode(nodeItem);
-                insertNode(node);
-            });
+
             // 更新期望出块数：期望出块数=共识周期块数/实际参与共识节点数
             expectBlockCount = chainConfig.getConsensusPeriodBlockCount().divide(BigInteger.valueOf(curValidators.size())).longValue();
         } catch (Exception e) {
@@ -381,33 +362,5 @@ public class EpochRetryService {
             }
         }
         networkStatCache.updateByEpochChange(summary);
-    }
-
-
-    public void insertNode(Node node){
-        StakeCreate businessParam = StakeCreate.builder()
-                .nodeId(node.getNodeId())
-                .stakingHes(new BigDecimal("0"))
-                .nodeName(node.getNodeName())
-                .externalId(StringUtils.isEmpty(node.getExternalId()) ?"":node.getExternalId())
-                .benefitAddr(StringUtils.isEmpty(node.getBenifitAddress()) ?"": node.getBenifitAddress())
-                .programVersion(null == node.getProgramVersion() ?"":node.getProgramVersion().toString())
-                .bigVersion(ChainVersionUtil.toBigVersion(node.getProgramVersion()).toString())
-                .webSite(StringUtils.isEmpty(node.getWebsite()) ?"": node.getWebsite())
-                .details(StringUtils.isEmpty(node.getDetails()) ?"": node.getDetails())
-                .isInit(InnerContractAddrEnum.INCENTIVE_POOL_CONTRACT.getAddress().equalsIgnoreCase(node.getBenifitAddress()) ?
-                        BusinessParam.YesNoEnum.YES.getCode()
-                        : BusinessParam.YesNoEnum.NO.getCode())
-                .stakingBlockNum(node.getStakingBlockNum())
-                .stakingTxIndex(null == node.getStakingTxIndex() ? 0:node.getStakingTxIndex().intValue())
-                .stakingAddr(StringUtils.isEmpty(node.getStakingAddress()) ?"":node.getStakingAddress())
-                .joinTime(new Date())
-                .delegateRewardPer(null == node.getRewardPer() ? 0:node.getRewardPer().intValue())
-                .unStakeFreezeDuration(0)
-                .unStakeEndBlock(new BigInteger("0"))
-                .settleEpoch(null == node.getStakingEpoch() ? 0:node.getStakingEpoch().intValue())
-                .build();
-
-        nodeMapper.insertOrUpdateNode(businessParam);
     }
 }

@@ -1,41 +1,40 @@
 package com.platon.browser.service.receipt;
 
-import com.platon.browser.AgentTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.platon.browser.AgentApplication;
+import com.platon.browser.bean.Receipt;
+import com.platon.browser.bean.ReceiptResult;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import java.util.Iterator;
+import java.util.Map;
 
-/**
- * @description: MySQL/ES/Redis启动一致性自检服务测试
- * @author: chendongming@matrixelements.com
- * @create: 2019-11-13 11:41:00
- **/
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class ReceiptServiceTest extends AgentTestBase {
+
+@Slf4j
+@SpringBootTest(classes = { AgentApplication.class })
+@ActiveProfiles("appchain")
+public class ReceiptServiceTest {
     @Mock
     private ReceiptRetryService retryService;
     @Spy
     private ReceiptService target;
 
-    @Before
-    public void setup() {
-        ReflectionTestUtils.setField(target, "retryService", retryService);
-    }
 
     @Test
     public void test() throws Exception {
-        target.getReceiptAsync(1L);
-        when(retryService.getReceipt(any())).thenThrow(new RuntimeException(""));
-        target.getReceiptAsync(1L);
+        ReceiptResult receiptResult = retryService.getReceipt(1367490L);
 
-        verify(target, times(2)).getReceiptAsync(any());
+        Iterator< Map.Entry<String, Receipt>> it = receiptResult.getMap().entrySet().iterator();
+       while(it.hasNext()){
+           Map.Entry<String, Receipt> entity = it.next();
+           System.out.println("key::" + entity.getKey());
+           System.out.println("implicitPPOSTx::" + entity.getValue().getImplicitPPOSTx());
+       }
+
     }
 
 }

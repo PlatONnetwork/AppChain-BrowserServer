@@ -292,6 +292,7 @@ public class InitializationService {
 
             // 使用当前质押信息生成节点信息
             CustomNode node = new CustomNode();
+            node.setValidatorId(v.getValidatorId());
             node.updateWithCustomStaking(staking);
             node.setStakingTxIndex(index);
             node.setTotalValue(staking.getStakingLocked());

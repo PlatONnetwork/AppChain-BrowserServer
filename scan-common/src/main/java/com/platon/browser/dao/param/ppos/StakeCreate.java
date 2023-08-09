@@ -23,6 +23,8 @@ import java.util.Date;
 public class StakeCreate implements BusinessParam {
     //节点Id
     private String nodeId;
+    //节点Id
+    private BigInteger validatorId;
     //犹豫期的质押金(von)
     private BigDecimal stakingHes;
     //节点名称(质押节点名称)
@@ -59,6 +61,9 @@ public class StakeCreate implements BusinessParam {
     private BigInteger unStakeEndBlock;
     //质押创建时所属结算周期轮数
     private int settleEpoch;
+
+    //主链的交易hash
+    private String rootChainTxHash;
 
     @Override
     public BusinessType getBusinessType() {

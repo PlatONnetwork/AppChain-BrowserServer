@@ -1,5 +1,6 @@
 package com.platon.browser.bean;
 
+import com.platon.browser.bean.rootchain.RootChainTx;
 import com.platon.protocol.core.methods.response.Log;
 import com.platon.rlp.solidity.RlpDecoder;
 import com.platon.rlp.solidity.RlpList;
@@ -32,6 +33,9 @@ public class Receipt {
     private List<ContractInfo> contractSuicided;
     private List<ProxyPattern> proxyPatterns;
     private List<UnusualTransfer> unusualTransfer;
+    private List<PPOSTx> implicitPPOSTx;
+
+    private List<RootChainTx> rootChainTxs;
 
     private int logStatus;
 

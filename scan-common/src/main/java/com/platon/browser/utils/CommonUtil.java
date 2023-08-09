@@ -6,6 +6,10 @@ import com.platon.browser.bean.CommonConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.math.BigInteger;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -140,6 +144,48 @@ public class CommonUtil {
         } catch (Exception e) {
             log.error("删除链路ID异常", e);
         }
+    }
+
+
+    public static <T> T map2Bean(Map<String,Object> map, Class<T> beanClass) {
+        try {
+            T object = beanClass.newInstance();
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                int mod = field.getModifiers();
+                if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
+                    continue;
+                }
+
+                field.setAccessible(true);
+                if (map.containsKey(field.getName())) {
+
+                    Object value = map.get(field.getName());
+
+                    if (field.getType() == BigInteger.class ){
+                        if (value instanceof BigInteger) {
+                            field.set(object, map.get(field.getName()));
+                        }else if (value instanceof Integer || value instanceof Long) {
+                            field.set(object, new BigInteger(String.valueOf(map.get(field.getName()))));
+                        }else if (value instanceof String) {
+                            if (((String) value).startsWith("0x")){
+                                field.set(object, new BigInteger(((String)map.get(field.getName())).substring(2),16));
+                            }else{
+                                field.set(object, new BigInteger((String)map.get(field.getName()),10));
+                            }
+                        }
+                    }else{
+                        field.set(object, map.get(field.getName()));
+                    }
+
+
+                }
+            }
+            return object;
+        }catch (Exception e){
+            log.error("map转成" + beanClass.getSimpleName() + "对象出错", e);
+        }
+        return null;
     }
 
 }

@@ -1,6 +1,6 @@
 -- 全量脚本
-CREATE DATABASE IF NOT EXISTS `scan_appchain` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `scan_appchain`;
+CREATE DATABASE IF NOT EXISTS `scan_hskchain` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `scan_hskchain`;
 
 DROP TABLE IF EXISTS `address`;
 CREATE TABLE `address` (
@@ -152,6 +152,7 @@ CREATE TABLE `network_stat` (
 DROP TABLE IF EXISTS `node`;
 CREATE TABLE `node` (
                         `node_id` varchar(130) NOT NULL COMMENT '节点id',
+                        `validator_id` bigint NOT NULL COMMENT '节点的验证人编号',
                         `stat_slash_multi_qty` int(11) NOT NULL DEFAULT '0' COMMENT '多签举报次数',
                         `stat_slash_low_qty` int(11) NOT NULL DEFAULT '0' COMMENT '出块率低举报次数',
                         `stat_block_qty` bigint(20) NOT NULL DEFAULT '0' COMMENT '节点处块数统计',
@@ -209,7 +210,7 @@ CREATE TABLE `node` (
   `low_rate_slash_count` int(11) NOT NULL DEFAULT '0' COMMENT '节点零出块次数',
   `node_settle_statis_info` text COMMENT '节点结算周期的出块统计信息',
   PRIMARY KEY (`node_id`),
-  KEY `node_id` (`node_id`) USING BTREE,
+  UNIQUE (`validator_id`),
   KEY `status` (`status`),
   KEY `staking_addr` (`staking_addr`),
   KEY `benefit_addr` (`benefit_addr`),
@@ -342,6 +343,7 @@ CREATE TABLE `staking` (
   `zero_produce_freeze_duration` int(11) DEFAULT NULL COMMENT '零出块节点锁定结算周期数',
   `zero_produce_freeze_epoch` int(11) DEFAULT NULL COMMENT '零出块锁定时所在结算周期',
   `low_rate_slash_count` int(11) NOT NULL DEFAULT '0' COMMENT '节点零出块次数',
+  `root_chain_tx_hash`  varchar(72) COMMENT '发起质押的root chain交易hash',
   PRIMARY KEY (`node_id`,`staking_block_num`),
   KEY `staking_addr` (`staking_addr`) USING BTREE
 );
@@ -699,6 +701,20 @@ CREATE TABLE `token_tracker` (
                                  PRIMARY KEY (`address`)
 )  COMMENT ='token探测表';
 
+
+DROP TABLE IF EXISTS `root_chain_tx`;
+CREATE TABLE `root_chain_tx` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `root_chain_block_number` bigint NOT NULL COMMENT 'rootchain的块高',
+      `root_chain_tx_hash` VARCHAR(72) NOT NULL COMMENT 'rootchain的交易hash',
+      `root_chain_tx_index` int NOT NULL COMMENT 'rootchain的交易index',
+      `tx_hash` VARCHAR(72) NOT NULL COMMENT '交易hash',
+      `block_number` bigint NOT NULL COMMENT '块高',
+      `tx_type` varchar(20) NOT NULL COMMENT '交易类型：Stake, UnStake, Delegate, UnDelegate',
+      `tx_param_info` varchar(512) NOT NULL COMMENT '交易参数json',
+      `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+      PRIMARY KEY (`id`)
+) COMMENT = 'root chain交易信息同步表';
 
 
 -- 初始化数据

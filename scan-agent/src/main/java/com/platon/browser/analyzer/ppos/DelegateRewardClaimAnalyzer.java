@@ -58,6 +58,10 @@ public class DelegateRewardClaimAnalyzer extends PPOSAnalyzer<DelegationReward> 
      */
     @Override
     public DelegationReward analyze(CollectionEvent event, Transaction tx) {
+        return null;
+    }
+
+    public DelegationReward analyze_old(CollectionEvent event, Transaction tx) {
         // 发起委托
         DelegateRewardClaimParam txParam = tx.getTxParam(DelegateRewardClaimParam.class);
         // 补充节点名称

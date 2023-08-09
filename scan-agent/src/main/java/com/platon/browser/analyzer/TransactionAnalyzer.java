@@ -158,11 +158,13 @@ public class TransactionAnalyzer {
             });
         }
 
+
+
         // 处理交易信息
         String inputWithoutPrefix = StringUtils.isNotBlank(result.getInput()) ? result.getInput().replace("0x", "") : "";
         if (InnerContractAddrEnum.getAddresses().contains(result.getTo()) && StringUtils.isNotBlank(inputWithoutPrefix)) {
             // 如果to地址是内置合约地址，则解码交易输入
-            TransactionUtil.resolveInnerContractInvokeTxComplementInfo(result, receipt.getLogs(), ci);
+            TransactionUtil.resolveInnerContractInvokeTxComplementInfo(result, receipt, ci);
             log.info("当前交易[{}]为内置合约,from[{}],to[{}],解码交易输入", result.getHash(), result.getFrom(), result.getTo());
         } else {
             // to地址为空 或者 contractAddress有值时代表交易为创建合约

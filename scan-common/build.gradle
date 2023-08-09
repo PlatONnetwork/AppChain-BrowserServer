@@ -12,6 +12,9 @@ dependencies {
     testCompile "org.springframework:spring-test:$springbootVersion"
 	testCompile "org.springframework.boot:spring-boot-test:$springbootVersion"
 	testCompile "org.springframework.boot:spring-boot-starter-test:$springbootVersion"
+
+
+
 }
 
 sonarqube {

@@ -1,19 +1,25 @@
 package com.platon.browser.decoder;
 
+import com.platon.browser.abi.decoder.AbiDecoder;
+import com.platon.browser.abi.decoder.DecodedFunctionCall;
+import com.platon.browser.bean.rootchain.RootChainTx;
+import com.platon.browser.decoder.ppos.*;
+import com.platon.browser.elasticsearch.dto.Transaction;
+import com.platon.browser.param.OthersTxParam;
 import com.platon.protocol.core.methods.response.Log;
 import com.platon.rlp.solidity.RlpDecoder;
 import com.platon.rlp.solidity.RlpList;
 import com.platon.rlp.solidity.RlpString;
 import com.platon.rlp.solidity.RlpType;
-import com.platon.browser.decoder.ppos.*;
-import com.platon.browser.elasticsearch.dto.Transaction;
-import com.platon.browser.param.OthersTxParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+
 
 /**
  * 内置合约交易解析工具：
@@ -26,8 +32,56 @@ import java.util.List;
 @Slf4j
 public class PPOSTxDecodeUtil {
 
+    private static AbiDecoder rootChainStakingAbiDecoder;
+    private static AbiDecoder innerSimulatedStakingAbiDecoder;
+
+    private final static String InnerSimulatedStakingFunc = "stakeStateSync";
+
+
+    private final static String InnerStakeFunc_stakeStateSync = "stakeStateSync";
+    private final static String InnerStakeFunc_blockNumber = "blockNumber";
     private PPOSTxDecodeUtil() {
+
     }
+
+    public static void init() throws IOException {
+        rootChainStakingAbiDecoder = new AbiDecoder(PPOSTxDecodeUtil.class.getResource("/contract/RootChainStakingAbi.json").getFile());
+        innerSimulatedStakingAbiDecoder = new AbiDecoder(PPOSTxDecodeUtil.class.getResource("/contract/InnerSimulatedStakingAbi.json").getFile());
+    }
+
+    /**
+     * todo: 重新解析一次？
+     * @param txInput
+     * @return
+     */
+    public static PPOSTxDecodeResult handleInnerStakingTx(String txInput) {
+        PPOSTxDecodeResult result = new PPOSTxDecodeResult();
+        DecodedFunctionCall call = InnerStakingDecoder.decodeFunctionName(txInput);
+        if (InnerStakeFunc_blockNumber.equalsIgnoreCase(call.getName())){
+            return null;
+        }
+        if (InnerStakeFunc_stakeStateSync.equalsIgnoreCase(call.getName())){
+            try {
+                RootChainEvent event = RootChainEventFactory.decodeRootChainEvent(call.getParam("events").getValue().toString());
+                if(event instanceof StakedEvent){
+                    StakedEvent stakedEvent = (StakedEvent)event;
+                }else if(event instanceof StakeUpdateEvent){
+                    StakeUpdateEvent stakeUpdateEvent = (StakeUpdateEvent)event;
+                }else if(event instanceof UnstakeInitEvent){
+                    UnstakeInitEvent unstakeInitEvent = (UnstakeInitEvent)event;
+                }
+            } catch (DecoderException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return result;
+    }
+
+    public static PPOSTxDecodeResult handleRootChainStakingTx(RootChainTx rootChainTx) {
+        return null;
+    }
+
 
     public static PPOSTxDecodeResult decode(String txInput, List<Log> logs) {
         PPOSTxDecodeResult result = new PPOSTxDecodeResult();

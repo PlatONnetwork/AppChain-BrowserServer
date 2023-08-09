@@ -1,22 +1,16 @@
 package com.platon.browser.service.ppos;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.fastjson.JSON;
 import com.platon.browser.analyzer.ppos.*;
-import org.springframework.stereotype.Service;
-
-import com.platon.browser.cache.AddressCache;
-import com.platon.browser.cache.NetworkStatCache;
 import com.platon.browser.bean.CollectionEvent;
 import com.platon.browser.bean.DelegateExitResult;
+import com.platon.browser.bean.Receipt;
 import com.platon.browser.bean.TxAnalyseResult;
-import com.platon.browser.analyzer.ppos.RestrictingCreateAnalyzer;
-import com.platon.browser.analyzer.ppos.ReportAnalyzer;
-import com.platon.browser.analyzer.ppos.StakeCreateAnalyzer;
-import com.platon.browser.analyzer.ppos.StakeExitAnalyzer;
-import com.platon.browser.analyzer.ppos.StakeIncreaseAnalyzer;
-import com.platon.browser.analyzer.ppos.StakeModifyAnalyzer;
+import com.platon.browser.bean.rootchain.RootChainTx;
+import com.platon.browser.cache.AddressCache;
+import com.platon.browser.cache.NetworkStatCache;
+import com.platon.browser.dao.entity.RootChainTxDto;
+import com.platon.browser.dao.mapper.RootChainTxMapper;
 import com.platon.browser.elasticsearch.dto.Block;
 import com.platon.browser.elasticsearch.dto.DelegationReward;
 import com.platon.browser.elasticsearch.dto.NodeOpt;
@@ -24,10 +18,14 @@ import com.platon.browser.elasticsearch.dto.Transaction;
 import com.platon.browser.exception.BlockNumberException;
 import com.platon.browser.exception.BusinessException;
 import com.platon.browser.exception.NoSuchBeanException;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @description: ppos服务
@@ -92,13 +90,83 @@ public class PPOSService {
     // 前一个区块号
     private long preBlockNumber = 0L;
 
+    @Resource
+    private RootChainTxAnalyzer rootChainTxAnalyzer;
+
+    @Resource
+    private RootChainTxMapper rootChainTxMapper;
+
+    public TxAnalyseResult analyze(CollectionEvent event) {
+        long startTime = System.currentTimeMillis();
+
+        TxAnalyseResult tar = TxAnalyseResult.builder().nodeOptList(new ArrayList<>()).delegationRewardList(new ArrayList<>()).build();
+
+        List<Transaction> transactions = event.getTransactions();
+
+        if (event.getBlock().getNum() == 0) {
+            return tar;
+        }
+
+        // 普通交易和虚拟PPOS交易统一设置seq排序序号： 区块号*100000+自增号(allTxCount)
+
+        List<RootChainTxDto> rootChainTxDtoList = new ArrayList<>();
+        int allTxCount = 0;
+        for (Transaction tx : transactions) {
+            // 设置普通交易的交易序号
+            tx.setSeq(event.getBlock().getNum() * 100000 + allTxCount);
+            this.addressCache.update(tx);
+            // 自增
+            allTxCount++;
+            Map<String, Receipt> receiptMap = event.getBlock().getReceiptMap();
+            Receipt receipt = receiptMap.get(tx.getHash());
+            rootChainTxDtoList.addAll(convert(receipt.getRootChainTxs(), tx.getHash(), tx.getNum()));
+
+            for (RootChainTx rootChainTx : receipt.getRootChainTxs()) {
+                this.analyzeRootChainTx(event, tx, rootChainTx, tar);
+            }
+            // 自增
+            allTxCount++;
+        }
+
+        if (rootChainTxDtoList.size()>0){
+            rootChainTxMapper.batchInsert(rootChainTxDtoList);
+        }
+
+
+        Block block = event.getBlock();
+        // 如果当前区块号与前一个一样，证明这是重复处理的块(例如:某部分业务处理失败，由于重试机制进来此处)
+        // 防止重复计算
+        if (block.getNum() == this.preBlockNumber) {
+            return tar;
+        }
+        this.networkStatCache.updateByBlock(event.getBlock());
+        log.debug("处理耗时:{} ms", System.currentTimeMillis() - startTime);
+        this.preBlockNumber = block.getNum();
+        return tar;
+    }
+
+    private static List<RootChainTxDto> convert(List<RootChainTx> rootChainTxList, String txHash, Long blockNumber){
+        return rootChainTxList.stream().map(tx -> {
+            RootChainTxDto dtoTx = new RootChainTxDto();
+            dtoTx.setBlockNumber(blockNumber);
+            dtoTx.setTxHash(txHash);
+            dtoTx.setRootChainBlockNumber(tx.getRootChainBlockNumber());
+            dtoTx.setRootChainTxHash(tx.getRootChainTxHash());
+            dtoTx.setRootChainTxIndex(tx.getRootChainTxIndex());
+            dtoTx.setTxType(tx.getTxType().name());
+            dtoTx.setTxParamInfo(JSON.toJSONString(tx.getTxParam()));
+            return dtoTx;
+        }).collect(Collectors.toList());
+
+
+    }
     /**
      * 解析交易, 构造业务入库参数信息
      *
      * @param event
      * @return
      */
-    public TxAnalyseResult analyze(CollectionEvent event) {
+    public TxAnalyseResult analyze_old(CollectionEvent event) {
         long startTime = System.currentTimeMillis();
 
         TxAnalyseResult tar = TxAnalyseResult.builder().nodeOptList(new ArrayList<>()).delegationRewardList(new ArrayList<>()).build();
@@ -158,6 +226,25 @@ public class PPOSService {
         return tar;
     }
 
+    private void analyzeRootChainTx(CollectionEvent event, Transaction tx, RootChainTx rootChainTx, TxAnalyseResult tar) {
+        NodeOpt nodeOpt = null;
+        switch (rootChainTx.getTxType()){
+            case Stake:
+                nodeOpt = this.rootChainTxAnalyzer.stake(event, tx, rootChainTx);
+                tar.getNodeOptList().add(nodeOpt);
+                break;
+            case UnStake:
+                nodeOpt = this.rootChainTxAnalyzer.unstake(event, tx, rootChainTx);
+                tar.getNodeOptList().add(nodeOpt);
+                break;
+            case Delegate:
+                this.rootChainTxAnalyzer.delegate(event, tx, rootChainTx);
+                break;
+            case  UnDelegate:
+                this.rootChainTxAnalyzer.undelegate(event, tx, rootChainTx);
+                break;
+        }
+    }
     /**
      * 分析真实交易
      *

@@ -12,6 +12,8 @@ import java.math.BigInteger;
 public class ValidatorEx {
     private String nodeId;
 
+    private BigInteger validatorId;
+
     private byte[] publicKeyHex;
 
     private String stakingAddress;

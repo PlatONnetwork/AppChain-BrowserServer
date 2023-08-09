@@ -1,9 +1,9 @@
 package com.platon.browser.analyzer.ppos;
 
 import com.platon.browser.bean.CollectionEvent;
-import com.platon.browser.dao.entity.GasEstimate;
 import com.platon.browser.dao.custommapper.CustomGasEstimateMapper;
 import com.platon.browser.dao.custommapper.DelegateBusinessMapper;
+import com.platon.browser.dao.entity.GasEstimate;
 import com.platon.browser.dao.param.ppos.DelegateCreate;
 import com.platon.browser.elasticsearch.dto.Transaction;
 import com.platon.browser.param.DelegateCreateParam;
@@ -40,6 +40,10 @@ public class DelegateCreateAnalyzer extends PPOSAnalyzer<DelegateCreate> {
      */
     @Override
     public DelegateCreate analyze(CollectionEvent event, Transaction tx) {
+        return null;
+    }
+
+    public DelegateCreate analyze_old(CollectionEvent event, Transaction tx) {
         // 发起委托
         DelegateCreateParam txParam = tx.getTxParam(DelegateCreateParam.class);
         // 补充节点名称
@@ -74,5 +78,4 @@ public class DelegateCreateAnalyzer extends PPOSAnalyzer<DelegateCreate> {
         log.debug("处理耗时:{} ms", System.currentTimeMillis() - startTime);
         return businessParam;
     }
-
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,6 +57,8 @@ public class Block {
     private String nodeName;
 
     private String nodeId;
+
+    private BigInteger validatorId;
 
     private String reward;
 

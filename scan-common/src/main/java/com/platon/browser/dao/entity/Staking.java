@@ -98,6 +98,8 @@ public class Staking extends StakingKey {
 
     private Integer lowRateSlashCount;
 
+    private String rootChainTxHash;
+
     private String annualizedRateInfo;
 
     public Integer getStakingTxIndex() {
@@ -532,6 +534,7 @@ public class Staking extends StakingKey {
         zeroProduceFreezeDuration("zero_produce_freeze_duration", "zeroProduceFreezeDuration", "INTEGER", false),
         zeroProduceFreezeEpoch("zero_produce_freeze_epoch", "zeroProduceFreezeEpoch", "INTEGER", false),
         lowRateSlashCount("low_rate_slash_count", "lowRateSlashCount", "INTEGER", false),
+        rootChainTxHash("root_chain_tx_hash", "rootChainTxHash", "VARCHAR", false),
         annualizedRateInfo("annualized_rate_info", "annualizedRateInfo", "LONGVARCHAR", false);
 
         /**

@@ -92,6 +92,7 @@ logging:
     com.platon.browser.task: info
 #PlatOn相关配置
 platon:
+  rootChainAddressPrefix: lat
   # 地址HRP前缀
   addressPrefix: hsk
   # 金额显示单位
@@ -101,8 +102,9 @@ platon:
   # Web3j访问地址
   web3j:
     #HTTP或WS
-    protocol: WS
-    addresses: 192.168.9.139:7789
+    protocol: HTTP
+    #192.168.9.139:6790: DEV_HSKCHAIN: 8.219.49.57:6789
+    addresses: 8.219.49.57:6789
   # 质押节点统计年化率最多取多少个连续周期
   maxSettlePeriodCount4AnnualizedRateStat: 4
   #PlatON初始总发行量(LAT)

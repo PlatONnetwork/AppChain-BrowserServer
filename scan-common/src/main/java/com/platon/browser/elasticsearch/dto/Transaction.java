@@ -1,15 +1,14 @@
 package com.platon.browser.elasticsearch.dto;
 
-import java.math.BigDecimal;
-import java.util.*;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import com.platon.browser.dao.entity.TxTransferBak;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 @Data
 @Accessors(chain = true)
@@ -114,6 +113,7 @@ public class Transaction {
      */
     @JSONField(serialize = false)
     private List<Transaction> virtualTransactions = new ArrayList<>();
+
 
     /******** 把字符串类数值转换为大浮点数的便捷方法 ********/
     public BigDecimal decimalGasLimit() {
@@ -252,7 +252,9 @@ public class Transaction {
         /**
          * 5000-领取奖励
          */
-        CLAIM_REWARDS(5000, "领取奖励");
+        CLAIM_REWARDS(5000, "领取奖励"),
+
+        ROOT_CHAIN_STATE_SYNC(9000, "主链状态同步操作");
 
         private static Map<Integer, TypeEnum> map = new HashMap<>();
 

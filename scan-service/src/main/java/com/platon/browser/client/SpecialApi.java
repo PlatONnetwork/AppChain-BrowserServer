@@ -1,7 +1,6 @@
 package com.platon.browser.client;
 
 import com.alibaba.fastjson.JSON;
-import com.platon.abi.solidity.datatypes.Utf8String;
 import com.platon.abi.solidity.datatypes.generated.Uint256;
 import com.platon.browser.bean.*;
 import com.platon.browser.enums.InnerContractAddrEnum;
@@ -143,6 +142,7 @@ public class SpecialApi {
 
     /**
      * 根据区块号获取结算周期验证人列表
+     * 这个区块号，是指这个结算周期的最后一块，所以，这个函数被调用的时机，是在一个新的结算周期开始那个块时调用，所以函数名叫history
      *
      * @param blockNumber
      * @return
@@ -190,6 +190,7 @@ public class SpecialApi {
         for (ValidatorEx validatorEx :validatorExes){
             Node node = new Node();
             node.setNodeId(validatorEx.getNodeId());
+            node.setValidatorId(validatorEx.getValidatorId());
             node.setStakingAddress(validatorEx.getStakingAddress());
             node.setBenifitAddress(null == validatorEx.getBenifitAddress() ? "0x0":validatorEx.getBenifitAddress());
             node.setNextRewardPer(validatorEx.getNextRewardPer());
@@ -213,6 +214,7 @@ public class SpecialApi {
             node.setDelegateRewardTotal(null == validatorEx.getDelegateRewardTotal() ? "": Numeric.encodeQuantity(validatorEx.getDelegateRewardTotal()));
             nodes.add(node);
         }
+        log.debug("get nodes from china:{}", JSON.toJSONString(nodes));
         return nodes;
     }
 

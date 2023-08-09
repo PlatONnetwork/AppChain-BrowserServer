@@ -14,7 +14,10 @@ dependencies {
     compile "com.github.ulisesbocchio:jasypt-spring-boot-starter:2.1.2"
     compile "org.mapstruct:mapstruct-jdk8:$mapstructVersion"
     compile "org.mapstruct:mapstruct-processor:$mapstructVersion"
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.4.4'
+    implementation "org.springframework.boot:spring-boot-starter-aop:$springbootVersion"
+
+    // https://mvnrepository.com/artifact/org.web3j/core
+    implementation group: 'org.web3j', name: 'core', version: '4.5.0'
 }
 
 sonarqube {

@@ -1,6 +1,7 @@
 package com.platon.browser.dao.entity;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -8,6 +9,8 @@ import java.util.Date;
 public class Node {
 
     private String nodeId;
+
+    private BigInteger validatorId;
 
     private Integer statSlashMultiQty;
 
@@ -120,6 +123,14 @@ public class Node {
     private String annualizedRateInfo;
 
     private String nodeSettleStatisInfo;
+
+    public BigInteger getValidatorId() {
+        return validatorId;
+    }
+
+    public void setValidatorId(BigInteger validatorId) {
+        this.validatorId = validatorId;
+    }
 
     public String getNodeId() {
         return nodeId;
@@ -586,6 +597,7 @@ public class Node {
      */
     public enum Column {
         nodeId("node_id", "nodeId", "VARCHAR", false),
+        validatorId("validator_id", "validatorId", "BIGINT", false),
         statSlashMultiQty("stat_slash_multi_qty", "statSlashMultiQty", "INTEGER", false),
         statSlashLowQty("stat_slash_low_qty", "statSlashLowQty", "INTEGER", false),
         statBlockQty("stat_block_qty", "statBlockQty", "BIGINT", false),

@@ -23,6 +23,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -116,12 +117,17 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
 
     private void exec(CollectionEvent event, long sequence, boolean endOfBatch) throws Exception {
         // 确保event是原始副本，重试机制每一次使用的都是copyEvent
+        StopWatch watch = new StopWatch("分析CollectionEvent");
         CollectionEvent copyEvent = copyCollectionEvent(event);
         try {
             transactionAnalyzer.instantlyTokenTracker(copyEvent.getBlock());
             Map<String, Receipt> receiptMap = copyEvent.getBlock().getReceiptMap();
+            //todo: event.block.originTransactions 和 event.transactions 有什么区别？
             List<com.platon.protocol.core.methods.response.Transaction> rawTransactions = copyEvent.getBlock().getOriginTransactions();
             for (com.platon.protocol.core.methods.response.Transaction tr : rawTransactions) {
+                //把event.block.originTransactions 分析转变成 CollectionTransaction，写入es的是CollectionTransaction
+
+                watch.start("分析交易:"+ tr.getHash());
                 CollectionTransaction transaction = transactionAnalyzer.analyze(copyEvent.getBlock(), tr, receiptMap.get(tr.getHash()));
                 // 把解析好的交易添加到当前区块的交易列表
                 copyEvent.getBlock().getTransactions().add(transaction);
@@ -130,6 +136,7 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
                 copyEvent.getBlock().setErc20TxQty(copyEvent.getBlock().getErc20TxQty() + transaction.getErc20TxList().size());
                 copyEvent.getBlock().setErc721TxQty(copyEvent.getBlock().getErc721TxQty() + transaction.getErc721TxList().size());
                 copyEvent.getBlock().setErc1155TxQty(copyEvent.getBlock().getErc1155TxQty() + transaction.getErc1155TxList().size());
+                watch.stop();
             }
 
             List<Transaction> transactions = copyEvent.getTransactions();
@@ -137,21 +144,28 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
             transactions.sort(Comparator.comparing(Transaction::getIndex));
 
             // 根据区块号解析出业务参数
+            watch.start("分析区块:"+ copyEvent.getBlock().getNum());
             List<NodeOpt> nodeOpts1 = blockService.analyze(copyEvent);
+            watch.stop();
             // 根据交易解析出业务参数
+            //TxAnalyseResult txAnalyseResult = pposService.analyze(copyEvent);
+            watch.start("分析PPOS交易:"+ copyEvent.getBlock().getNum());
             TxAnalyseResult txAnalyseResult = pposService.analyze(copyEvent);
+            watch.stop();
             // 汇总操作记录
             if (CollUtil.isNotEmpty(txAnalyseResult.getNodeOptList())) {
                 nodeOpts1.addAll(txAnalyseResult.getNodeOptList());
             }
             // 交易入库mysql，因为缓存无法实现自增id，不再删除操作日志表
             if (CollUtil.isNotEmpty(transactions)) {
+                watch.start("区块交易入库:"+copyEvent.getBlock().getNum());
                 // 依赖于数据库的自增id
                 customTxBakMapper.batchInsertOrUpdateSelective(transactions);
                 addTxErc20Bak(transactions);
                 addTxErc721Bak(transactions);
                 addTxErc1155Bak(transactions);
                 addTxTransferBak(transactions);
+                watch.stop();
             }
             List<DelegationReward> delegationRewardList = txAnalyseResult.getDelegationRewardList();
             // 委托奖励交易入库
@@ -161,15 +175,20 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
             // 操作日志入库mysql，再由定时任务同步到es，因为缓存无法实现自增id，所以不再由环形队列入库，不再删除操作日志表
             if (CollUtil.isNotEmpty(nodeOpts1)) {
                 // 依赖于数据库的自增id
+                watch.start("节点信息入库:"+copyEvent.getBlock().getNum());
                 customNOptBakMapper.batchInsertOrUpdateSelective(nodeOpts1);
+                watch.stop();
             }
             // 统计业务参数，以MySQL数据库块高为准，所以必须保证块高是最后入库
+            watch.start("统计信息入库:"+copyEvent.getBlock().getNum());
             statisticService.analyze(copyEvent);
+            watch.stop();
             // TODO 此分割线以上代码异常重试属于正常逻辑，如果是以下代码发生异常，可能区块相关交易已经发送到ComplementEventHandler进行处理，则该区块会被重复处理多次
             complementEventPublisher.publish(copyEvent.getBlock(), transactions, nodeOpts1, delegationRewardList, event.getTraceId());
             // 释放对象引用
             event.releaseRef();
             retryCount.set(0);
+            log.debug("结束分析CollectionEvent，块高：{}，耗时统计：{}", event.getBlock().getNum(), watch.prettyPrint());
         } catch (Exception e) {
             log.error(StrUtil.format("区块[{}]解析交易异常", copyEvent.getBlock().getNum()), e);
             throw e;

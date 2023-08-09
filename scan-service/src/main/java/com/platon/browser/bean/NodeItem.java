@@ -8,6 +8,7 @@ import java.math.BigInteger;
 @Builder
 @Accessors(chain = true)
 public class NodeItem {
+    private BigInteger validatorId;
 
     private String nodeId;
 
@@ -20,6 +21,14 @@ public class NodeItem {
      * 节点结算周期的出块统计信息
      */
     private String nodeSettleStatisInfo;
+
+    public BigInteger getValidatorId() {
+        return validatorId;
+    }
+
+    public void setValidatorId(BigInteger validatorId) {
+        this.validatorId = validatorId;
+    }
 
     public String getNodeId() {
         return nodeId;

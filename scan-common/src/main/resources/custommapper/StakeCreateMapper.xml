@@ -25,7 +25,8 @@
         `total_dele_reward`,
         `un_stake_freeze_duration`,
         `un_stake_end_block`,
-        `low_rate_slash_count`
+        `low_rate_slash_count`,
+        `root_chain_tx_hash`
     ) values (
         #{nodeId},
         #{stakingBlockNum},
@@ -48,10 +49,12 @@
         0,
         #{unStakeFreezeDuration},
         #{unStakeEndBlock},
-        0
+        0,
+        #{rootChainTxHash}
     );
     /*2、node新增或更新*/
     insert into `node` (`node_id`,
+        `validator_id`,
         `staking_block_num`,
         `staking_tx_index`,
         `staking_addr`,
@@ -77,6 +80,7 @@
         `low_rate_slash_count`
     ) values (
         #{nodeId},
+        #{validatorId},
         #{stakingBlockNum},
         #{stakingTxIndex},
         #{stakingAddr},

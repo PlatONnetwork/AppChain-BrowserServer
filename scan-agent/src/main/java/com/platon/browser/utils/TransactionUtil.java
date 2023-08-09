@@ -32,11 +32,12 @@ import com.platon.utils.Numeric;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 
-import java.awt.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -217,11 +218,22 @@ public class TransactionUtil {
     /**
      * 内置合约调用交易,解析补充信息
      */
-    public static void resolveInnerContractInvokeTxComplementInfo(CollectionTransaction tx, List<Log> logs, ComplementInfo ci) throws BeanCreateOrUpdateException {
+    public static void resolveInnerContractInvokeTxComplementInfo(CollectionTransaction tx, Receipt receipt, ComplementInfo ci) throws BeanCreateOrUpdateException {
+        if (InnerContractAddrEnum.NODE_CONTRACT.getAddress().equalsIgnoreCase(tx.getTo()) ){
+            ci.setType(Transaction.TypeEnum.ROOT_CHAIN_STATE_SYNC.getCode());
+            ci.setInfo(JSON.toJSONString(receipt.getRootChainTxs()));
+            ci.setToType(Transaction.ToTypeEnum.INNER_CONTRACT.getCode());
+            ci.setContractType(ContractTypeEnum.INNER.getCode());
+            ci.setMethod(null);
+            ci.setBinCode(null);
+            return;
+        }
+
+
         PPOSTxDecodeResult decodedResult;
         try {
             // 解析交易的输入及交易回执log信息
-            decodedResult = PPOSTxDecodeUtil.decode(tx.getInput(), logs);
+            decodedResult = PPOSTxDecodeUtil.decode(tx.getInput(), receipt.getLogs());
             ci.setType(decodedResult.getTypeEnum().getCode());
             ci.setInfo(decodedResult.getParam().toJSONString());
             ci.setToType(Transaction.ToTypeEnum.INNER_CONTRACT.getCode());

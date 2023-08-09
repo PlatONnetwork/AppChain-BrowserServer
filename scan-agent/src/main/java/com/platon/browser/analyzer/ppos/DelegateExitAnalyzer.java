@@ -78,6 +78,9 @@ public class DelegateExitAnalyzer extends PPOSAnalyzer<DelegateExitResult> {
      */
     @Override
     public DelegateExitResult analyze(CollectionEvent event, Transaction tx) {
+        return null;
+    }
+    public DelegateExitResult analyze_old(CollectionEvent event, Transaction tx) {
         DelegateExitResult der = DelegateExitResult.builder().build();
         // 退出委托
         DelegateExitParam txParam = tx.getTxParam(DelegateExitParam.class);
@@ -128,8 +131,8 @@ public class DelegateExitAnalyzer extends PPOSAnalyzer<DelegateExitResult> {
          *
          * 二、侯选中，先扣犹豫、不足后扣锁定
          * 犹豫够扣: 委托和质押表从stat_delegate_hes扣，节点表从stat_delegate_value扣
-         * 犹豫不够扣: 委托和质押从stat_delegate_hes和stat_delegate_locked扣，节点表从stat_delegate_value扣
-         */
+         * 犹豫不够扣: 委托和质押从stat_delegate_hes和stat_delegate_locked扣，节点表从stat_delegate_value扣*/
+
         boolean isCandidate = true; // 对应节点是否候选中
 
         if (staking.getStatus() == CustomStaking.StatusEnum.EXITING.getCode() || staking.getStatus() == CustomStaking.StatusEnum.EXITED.getCode()) {
