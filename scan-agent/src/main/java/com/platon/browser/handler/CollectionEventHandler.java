@@ -188,7 +188,7 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
             // 释放对象引用
             event.releaseRef();
             retryCount.set(0);
-            log.debug("结束分析CollectionEvent，块高：{}，耗时统计：{}", event.getBlock().getNum(), watch.prettyPrint());
+            log.debug("结束分析CollectionEvent，块高：{}，耗时统计：{}", copyEvent.getBlock().getNum(), watch.prettyPrint());
         } catch (Exception e) {
             log.error(StrUtil.format("区块[{}]解析交易异常", copyEvent.getBlock().getNum()), e);
             throw e;
