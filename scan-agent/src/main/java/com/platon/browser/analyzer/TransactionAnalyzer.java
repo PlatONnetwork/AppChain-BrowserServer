@@ -230,6 +230,11 @@ public class TransactionAnalyzer {
 
         // 默认取状态字段作为交易成功与否的状态
         int status = receipt.getStatus();
+
+        //在AgentApplication中，会通过com.platon.browser.client.PlatOnClient.getReceiptResult，获取整个区块的ReceiptExt，并且会decode(receipt.data)
+        //这是原来platon的做法，在platon中，receipt.data中的第一个数据，是合约本身执行的业务结果代码，业务结果代码成功，才表示整个交易的成功
+        //但是在应用链中，无需decode receipt.data了（如果要decode，也不是rlp decode，而是abiDecode了，参考应用链底层：staking_contract.go#addStakeStateSyncLog()方法。
+        //为了保持scan的原有处理流程，修改了com.platon.browser.bean.Receipt.decodeLogs()方法，不再对发到内置staking合约上的交易执行完的log.data进行解码
         if (InnerContractAddrEnum.getAddresses().contains(result.getTo()) && ci.getType() != com.platon.browser.elasticsearch.dto.Transaction.TypeEnum.TRANSFER.getCode()) {
             // 如果接收者为内置合约且不为转账, 取日志中的状态作为交易成功与否的状态
             status = receipt.getLogStatus();

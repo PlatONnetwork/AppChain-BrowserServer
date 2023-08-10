@@ -1,6 +1,7 @@
 package com.platon.browser.bean;
 
 import com.platon.browser.bean.rootchain.RootChainTx;
+import com.platon.browser.enums.InnerContractAddrEnum;
 import com.platon.protocol.core.methods.response.Log;
 import com.platon.rlp.solidity.RlpDecoder;
 import com.platon.rlp.solidity.RlpList;
@@ -61,6 +62,11 @@ public class Receipt {
             return;
         }
         Log log = this.logs.get(0);
+        //内置staking的交易，都是成功的。
+        if (InnerContractAddrEnum.STAKING_CONTRACT.getAddress().equalsIgnoreCase(log.getAddress())){
+            this.logStatus = SUCCESS;
+            return;
+        }
         String data = log.getData();
         if (StringUtils.isBlank(data)) {
             this.logStatus = FAILURE;
