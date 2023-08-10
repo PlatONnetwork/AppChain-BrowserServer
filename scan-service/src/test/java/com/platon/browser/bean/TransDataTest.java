@@ -7,6 +7,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -36,7 +37,7 @@ public class TransDataTest {
 
         PPosInvokeContractInputCache.hasCache(100l);
         PPosInvokeContractInputCache.getPPosInvokeContractInput("");
-        PPosInvokeContractInputCache.update(100l, new ArrayList<>());
+        PPosInvokeContractInputCache.update(100l, new ConcurrentHashMap<>());
         assertTrue(true);
     }
 }

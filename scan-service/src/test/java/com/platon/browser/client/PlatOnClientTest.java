@@ -1,103 +1,34 @@
 package com.platon.browser.client;
 
-import com.platon.browser.exception.BlankResponseException;
-import com.platon.browser.exception.ContractInvokeException;
-import com.platon.protocol.Web3j;
-import com.platon.protocol.core.Request;
-import com.platon.protocol.core.Response;
-import com.platon.protocol.core.methods.response.bean.EconomicConfig;
-import com.alibaba.fastjson.JSON;
+import com.platon.browser.BrowserServiceApplication;
+import com.platon.browser.bean.Receipt;
 import com.platon.browser.bean.ReceiptResult;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
+import javax.annotation.Resource;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@Slf4j
+@SpringBootTest(classes = { BrowserServiceApplication.class })
+@ActiveProfiles("hskchain")
 public class PlatOnClientTest {
 
-	@Mock
-	private ExecutorService logDecodeExecutor;
-	@Mock
-	private RetryableClient retryableClient;
-	@Mock
-	private SpecialApi specialApi;
+	@Resource
+	private PlatOnClient platOnClient;
 
-	@Spy
-	private PlatOnClient target;
 
+	@SneakyThrows
 	@Test
-	public void testInit() throws IOException,ContractInvokeException,InterruptedException, BlankResponseException {
-		ReflectionTestUtils.setField(target,"logDecodeExecutor",logDecodeExecutor);
-		ReflectionTestUtils.setField(target,"retryableClient",retryableClient);
-		ReflectionTestUtils.setField(target,"specialApi",specialApi);
-		ReflectionTestUtils.setField(target,"logDecodeThreadNum",6);
-
-		ReflectionTestUtils.invokeMethod(target,"init");
-
-		target.updateCurrentWeb3jWrapper();
-		target.getWeb3jWrapper();
-
-		ReceiptResult rr = getReceiptResult();
-		when(specialApi.getReceiptResult(any(),any())).thenReturn(rr);
-		target.getReceiptResult(33L);
-
-		Web3jWrapper web3jWrapper = mock(Web3jWrapper.class);
-		when(retryableClient.getWeb3jWrapper()).thenReturn(web3jWrapper);
-		Web3j web3j = mock(Web3j.class);
-		when(web3jWrapper.getWeb3j()).thenReturn(web3j);
-		Request request = mock(Request.class);
-		when(web3j.getEconomicConfig()).thenReturn(request);
-		Response response = mock(Response.class);
-		when(request.send()).thenReturn(response);
-		EconomicConfig ec = new EconomicConfig();
+	public void testGetReceiptResult() {
 
 
-		assertTrue(true);
-	}
+		ReceiptResult receiptResult  = platOnClient.getReceiptResult(2170L);
+		Receipt receipt = receiptResult.getMap().get("0xc592d5e17affc84eef16bdf3b18ce84a9fb45efb03f1ba4685ba5b41649e1a94");
 
-
-	private ReceiptResult getReceiptResult(){
-		String json ="{\n" +
-				"    \"jsonrpc\": \"2.0\",\n" +
-				"    \"id\": 9430,\n" +
-				"    \"result\": [\n" +
-				"      {\n" +
-				"        \"blockNumber\": 1388,\n" +
-				"        \"gasUsed\": \"0x14bc8\",\n" +
-				"        \"logs\": [\n" +
-				"          {\n" +
-				"            \"removed\": false,\n" +
-				"            \"logIndex\": \"0\",\n" +
-				"            \"transactionIndex\": null,\n" +
-				"            \"transactionHash\": null,\n" +
-				"            \"blockHash\": null,\n" +
-				"            \"blockNumber\": null,\n" +
-				"            \"address\": null,\n" +
-				"            \"data\": \"0xe3a27b22436f6465223a302c2244617461223a22222c224572724d7367223a226f6b227d\",\n" +
-				"            \"type\": null,\n" +
-				"            \"topics\": null\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"transactionHash\": \"0x4a0ee1bb27b624e193ea3bc722eb47923acfaf01a5570294eeaea02d6580c494\",\n" +
-				"        \"transactionIndex\": \"0x0\",\n" +
-				"        \"status\": null,\n" +
-				"        \"logStatus\": 1,\n" +
-				"        \"failReason\": null\n" +
-				"      }\n" +
-				"    ]\n" +
-				"  }";
-		ReceiptResult rr = JSON.parseObject(json,ReceiptResult.class);
-		return rr;
+    	System.out.println("receipt.getStatus():" + receipt.getStatus() + "   receipt.getLogStatus():" + receipt.getLogStatus());
 	}
 }
