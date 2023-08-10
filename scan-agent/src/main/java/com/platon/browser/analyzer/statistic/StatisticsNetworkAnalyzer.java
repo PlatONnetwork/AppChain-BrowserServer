@@ -72,7 +72,7 @@ public class StatisticsNetworkAnalyzer {
         networkStat.setNextSettle(CalculateUtils.calculateNextSetting(chainConfig.getSettlePeriodBlockCount(), epochMessage.getSettleEpochRound(), epochMessage.getCurrentBlockNumber()));
         setTotalIssueValue(block.getNum(), event.getEpochMessage().getSettleEpochRound(), networkStat);
         statisticBusinessMapper.networkChange(networkStat);
-        log.debug("处理耗时:{} ms", System.currentTimeMillis() - startTime);
+        log.debug("网络统计处理耗时:{} ms", System.currentTimeMillis() - startTime);
     }
 
     /**

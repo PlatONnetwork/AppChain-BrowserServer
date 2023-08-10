@@ -2,8 +2,8 @@ package com.platon.browser.bean;
 
 import com.platon.browser.dao.entity.Staking;
 import com.platon.browser.dao.entity.StakingKey;
-import com.platon.browser.utils.HexUtil;
 import com.platon.browser.utils.ChainVersionUtil;
+import com.platon.browser.utils.HexUtil;
 import com.platon.contracts.ppos.dto.resp.Node;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +90,7 @@ public class CustomStaking extends Staking {
 //        // 节点状态 1：候选中 2：退出中 3：已退出
         if(verifier.getStatus()!=null) this.setStatus(verifier.getStatus().intValue());
 //        // 节点名称(质押节点名称)
-        this.setNodeName(StringUtils.isBlank(verifier.getNodeName())?this.getNodeName():verifier.getNodeName());
+        this.setNodeName(verifier.getNodeName());
         // 节点的第三方主页
         this.setWebSite(verifier.getWebsite());
         this.setDetails(verifier.getDetails());

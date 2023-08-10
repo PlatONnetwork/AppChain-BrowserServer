@@ -25,6 +25,7 @@ import com.platon.tx.exceptions.ContractCallException;
 import com.platon.utils.JSONUtil;
 import com.platon.utils.Numeric;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -192,7 +193,7 @@ public class SpecialApi {
             node.setNodeId(validatorEx.getNodeId());
             node.setValidatorId(validatorEx.getValidatorId());
             node.setStakingAddress(validatorEx.getStakingAddress());
-            node.setBenifitAddress(null == validatorEx.getBenifitAddress() ? "0x0":validatorEx.getBenifitAddress());
+            node.setBenifitAddress(null == validatorEx.getBenifitAddress() ? "0x0": validatorEx.getBenifitAddress());
             node.setNextRewardPer(validatorEx.getNextRewardPer());
             node.setStakingTxIndex(validatorEx.getStakingTxIndex());
             node.setProgramVersion(validatorEx.getProgramVersion());
@@ -205,7 +206,7 @@ public class SpecialApi {
             node.setRestrictingPlan(null == validatorEx.getRestrictingPlan() ? "": Numeric.encodeQuantity(validatorEx.getRestrictingPlan()));
             node.setRestrictingPlanHes(null == validatorEx.getRestrictingPlanHes() ? "": Numeric.encodeQuantity(validatorEx.getRestrictingPlanHes()));
             node.setExternalId(null == validatorEx.getExternalId() ? "":validatorEx.getExternalId());
-            node.setNodeName(null == validatorEx.getNodeName() ? "":validatorEx.getNodeName());
+            node.setNodeName(StringUtils.isBlank(validatorEx.getNodeName()) ? "NodeName_" + validatorEx.getValidatorId() : validatorEx.getNodeName());
             node.setWebsite(null == validatorEx.getWebsite() ? "":validatorEx.getWebsite());
             node.setDetails(null == validatorEx.getDetails() ? "":validatorEx.getDetails());
             node.setValidatorTerm(validatorEx.getValidatorTerm());

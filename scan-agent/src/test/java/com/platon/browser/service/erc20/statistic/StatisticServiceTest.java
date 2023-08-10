@@ -1,12 +1,13 @@
-package com.platon.browser.service.statistic;
+package com.platon.browser.service.erc20.statistic;
 
 import com.platon.browser.AgentTestBase;
-import com.platon.browser.bean.EpochMessage;
-import com.platon.browser.cache.AddressCache;
-import com.platon.browser.bean.CollectionEvent;
 import com.platon.browser.analyzer.statistic.StatisticsAddressAnalyzer;
 import com.platon.browser.analyzer.statistic.StatisticsNetworkAnalyzer;
+import com.platon.browser.bean.CollectionEvent;
+import com.platon.browser.bean.EpochMessage;
+import com.platon.browser.cache.AddressCache;
 import com.platon.browser.elasticsearch.dto.Block;
+import com.platon.browser.service.statistic.StatisticService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
