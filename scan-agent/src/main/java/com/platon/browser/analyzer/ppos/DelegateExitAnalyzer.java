@@ -78,9 +78,6 @@ public class DelegateExitAnalyzer extends PPOSAnalyzer<DelegateExitResult> {
      */
     @Override
     public DelegateExitResult analyze(CollectionEvent event, Transaction tx) {
-        return null;
-    }
-    public DelegateExitResult analyze_old(CollectionEvent event, Transaction tx) {
         DelegateExitResult der = DelegateExitResult.builder().build();
         // 退出委托
         DelegateExitParam txParam = tx.getTxParam(DelegateExitParam.class);
