@@ -96,56 +96,7 @@ public class PPOSService {
     @Resource
     private RootChainTxMapper rootChainTxMapper;
 
-    public TxAnalyseResult analyze(CollectionEvent event) {
-        long startTime = System.currentTimeMillis();
-
-        TxAnalyseResult tar = TxAnalyseResult.builder().nodeOptList(new ArrayList<>()).delegationRewardList(new ArrayList<>()).build();
-
-        List<Transaction> transactions = event.getTransactions();
-
-        if (event.getBlock().getNum() == 0) {
-            return tar;
-        }
-
-        // 普通交易和虚拟PPOS交易统一设置seq排序序号： 区块号*100000+自增号(allTxCount)
-
-        List<RootChainTxDto> rootChainTxDtoList = new ArrayList<>();
-        int allTxCount = 0;
-        for (Transaction tx : transactions) {
-            // 设置普通交易的交易序号
-            tx.setSeq(event.getBlock().getNum() * 100000 + allTxCount);
-            this.addressCache.update(tx);
-            // 自增
-            allTxCount++;
-            Map<String, Receipt> receiptMap = event.getBlock().getReceiptMap();
-            Receipt receipt = receiptMap.get(tx.getHash());
-            rootChainTxDtoList.addAll(convert(receipt.getRootChainTxs(), tx.getHash(), tx.getNum()));
-
-            for (RootChainTx rootChainTx : receipt.getRootChainTxs()) {
-                this.analyzeRootChainTx(event, tx, rootChainTx, tar);
-            }
-            // 自增
-            allTxCount++;
-        }
-
-        if (rootChainTxDtoList.size()>0){
-            rootChainTxMapper.batchInsert(rootChainTxDtoList);
-        }
-
-
-        Block block = event.getBlock();
-        // 如果当前区块号与前一个一样，证明这是重复处理的块(例如:某部分业务处理失败，由于重试机制进来此处)
-        // 防止重复计算
-        if (block.getNum() == this.preBlockNumber) {
-            return tar;
-        }
-        this.networkStatCache.updateByBlock(event.getBlock());
-        log.debug("处理耗时:{} ms", System.currentTimeMillis() - startTime);
-        this.preBlockNumber = block.getNum();
-        return tar;
-    }
-
-    private static List<RootChainTxDto> convert(List<RootChainTx> rootChainTxList, String txHash, Long blockNumber){
+   private static List<RootChainTxDto> convert(List<RootChainTx> rootChainTxList, String txHash, Long blockNumber){
         return rootChainTxList.stream().map(tx -> {
             RootChainTxDto dtoTx = new RootChainTxDto();
             dtoTx.setBlockNumber(blockNumber);
@@ -166,7 +117,7 @@ public class PPOSService {
      * @param event
      * @return
      */
-    public TxAnalyseResult analyze_old(CollectionEvent event) {
+    public TxAnalyseResult analyze(CollectionEvent event) {
         long startTime = System.currentTimeMillis();
 
         TxAnalyseResult tar = TxAnalyseResult.builder().nodeOptList(new ArrayList<>()).delegationRewardList(new ArrayList<>()).build();
@@ -185,7 +136,7 @@ public class PPOSService {
             this.addressCache.update(tx);
             // 自增
             allTxCount++;
-            // 分析真实交易
+            // 分析真实PPOS交易（包括ROOT_CHAIN_STATE_SYNC交易，一个ROOT_CHAIN_STATE_SYNC交易可能包含多个质押委托操作）
             this.analyzePPosTx(event, tx, tar);
             // 分析虚拟交易
             List<Transaction> virtualTxes = tx.getVirtualTransactions();
@@ -261,6 +212,20 @@ public class PPOSService {
             NodeOpt nodeOpt = null;
             DelegationReward delegationReward = null;
             switch (tx.getTypeEnum()) {
+                case ROOT_CHAIN_STATE_SYNC:
+                    Map<String, Receipt> receiptMap = event.getBlock().getReceiptMap();
+                    Receipt receipt = receiptMap.get(tx.getHash());
+
+                    if(receipt.getRootChainTxs().size()>0){
+                        List<RootChainTxDto> rootChainTxDtoList = new ArrayList<>(convert(receipt.getRootChainTxs(), tx.getHash(), tx.getNum()));
+                        rootChainTxMapper.batchInsert(rootChainTxDtoList);
+
+                        for (RootChainTx rootChainTx : receipt.getRootChainTxs()) {
+                            //nodeOpt已经加入tar
+                            this.analyzeRootChainTx(event, tx, rootChainTx, tar);
+                        }
+                    }
+                    break;
                 case STAKE_CREATE:
                     nodeOpt = this.stakeCreateAnalyzer.analyze(event, tx);
                     break;

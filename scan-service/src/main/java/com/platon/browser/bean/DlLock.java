@@ -10,17 +10,17 @@ import java.math.BigInteger;
 public class DlLock {
 
     /**
-     * 锁仓金额
+     * 处于锁定期的委托金，资金来源是锁仓计划
      */
     private BigInteger restrictingPlanAmount;
 
     /**
-     * 自由金金额
+     * 处于锁定期的委托金，资金来源是用户账户余额
      */
     private BigInteger freeBalance;
 
     /**
-     * 解锁结算周期
+     * 解锁结算周期,锁定截止周期
      */
     private BigInteger expiredEpoch;
 

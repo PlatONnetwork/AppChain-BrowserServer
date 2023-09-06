@@ -215,12 +215,28 @@ public class TransactionUtil {
         return successVirtualTransactions;
     }
 
+    private static Transaction.TypeEnum convertMethodIdToTxType(long methodId ){
+        if(methodId == 3137535113L){
+            return Transaction.TypeEnum.ROOT_CHAIN_STATE_SYNC;
+        } else if(methodId == 1474851303L){
+            return Transaction.TypeEnum.ROOT_CHAIN_BLOCK_NUMBER_SYNC;
+        }else{
+            return Transaction.TypeEnum.OTHERS;
+        }
+    }
     /**
      * 内置合约调用交易,解析补充信息
      */
     public static void resolveInnerContractInvokeTxComplementInfo(CollectionTransaction tx, Receipt receipt, ComplementInfo ci) throws BeanCreateOrUpdateException {
         if (InnerContractAddrEnum.NODE_CONTRACT.getAddress().equalsIgnoreCase(tx.getTo()) ){
-            ci.setType(Transaction.TypeEnum.ROOT_CHAIN_STATE_SYNC.getCode());
+            //内置质押合约，现在底层有两个方法，一个是StakeStateSync，一个是BlockNumber, 有input的前4个字节表示方法id（这个和PlatON的input构成不同，PlatON是需要对methodId再次rlp编码的）
+
+            byte[] inputBytes = HexUtil.decode(tx.getInput());
+            byte[] methodIdBytes = Arrays.copyOfRange(inputBytes, 0, 4);
+            long methodId = HexUtil.convertToLong(methodIdBytes);
+
+            //这里没有解析input中的method，因为底层StakeStateSync方法的method ID是：3137535113，是个long类型的。这里相当于对这个方法的ID做了转换
+            ci.setType(convertMethodIdToTxType(methodId).getCode());
             ci.setInfo(JSON.toJSONString(receipt.getRootChainTxs()));
             ci.setToType(Transaction.ToTypeEnum.INNER_CONTRACT.getCode());
             ci.setContractType(ContractTypeEnum.INNER.getCode());

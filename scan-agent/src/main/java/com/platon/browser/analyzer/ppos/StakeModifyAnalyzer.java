@@ -47,9 +47,6 @@ public class StakeModifyAnalyzer extends PPOSAnalyzer<NodeOpt> {
      */
     @Override
     public NodeOpt analyze(CollectionEvent event, Transaction tx) throws NoSuchBeanException {
-        return null;
-    }
-    public NodeOpt analyze_old(CollectionEvent event, Transaction tx) throws NoSuchBeanException {
         // 修改质押信息
         StakeModifyParam txParam = tx.getTxParam(StakeModifyParam.class);
 

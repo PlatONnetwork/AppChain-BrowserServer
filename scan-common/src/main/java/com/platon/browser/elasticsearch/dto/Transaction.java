@@ -254,8 +254,8 @@ public class Transaction {
          */
         CLAIM_REWARDS(5000, "领取奖励"),
 
-        ROOT_CHAIN_STATE_SYNC(9000, "主链状态同步操作");
-
+        ROOT_CHAIN_STATE_SYNC(9000, "主链质押信息同步操作"), //method： 3137535113
+        ROOT_CHAIN_BLOCK_NUMBER_SYNC(9001, "主链区块高度同步操作"); //method： 1474851303
         private static Map<Integer, TypeEnum> map = new HashMap<>();
 
         static {

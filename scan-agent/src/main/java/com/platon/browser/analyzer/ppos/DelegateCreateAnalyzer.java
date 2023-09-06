@@ -40,10 +40,6 @@ public class DelegateCreateAnalyzer extends PPOSAnalyzer<DelegateCreate> {
      */
     @Override
     public DelegateCreate analyze(CollectionEvent event, Transaction tx) {
-        return null;
-    }
-
-    public DelegateCreate analyze_old(CollectionEvent event, Transaction tx) {
         // 发起委托
         DelegateCreateParam txParam = tx.getTxParam(DelegateCreateParam.class);
         // 补充节点名称

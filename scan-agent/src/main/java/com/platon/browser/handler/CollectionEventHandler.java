@@ -128,6 +128,12 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
                 //把event.block.originTransactions 分析转变成 CollectionTransaction，写入es的是CollectionTransaction
 
                 watch.start("分析交易:"+ tr.getHash());
+
+                //
+                // 重要：
+                // 解析区块中的交易，特别是：
+                // 1：token交易，按token类型分别解析出交易信息，放入各自类型的列表中；并把token的holder，以及holder持有token的余额，交易次数等信息，保存到本地db中
+                // 2: PPOS交易(包括两种类型的PPOS交易，一是直接发给内置合约的ppos交易，二是有用户合约调用内置合约而形成的ppos交易)，解析成dto.Transaction，后续有PPOSService继续处理，
                 CollectionTransaction transaction = transactionAnalyzer.analyze(copyEvent.getBlock(), tr, receiptMap.get(tr.getHash()));
                 // 把解析好的交易添加到当前区块的交易列表
                 copyEvent.getBlock().getTransactions().add(transaction);

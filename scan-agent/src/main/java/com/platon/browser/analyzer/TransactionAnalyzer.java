@@ -97,6 +97,7 @@ public class TransactionAnalyzer {
 
     /**
      * 交易解析
+     *  特别是把PPOS交易，解析成dto.Transaction，后续有PPOSService继续处理，包括两种类型的PPOS交易，一是直接发给内置合约的ppos交易，二是有用户合约调用内置合约而形成的ppos交易。
      *
      * @param collectionBlock 区块
      * @param rawTransaction  交易

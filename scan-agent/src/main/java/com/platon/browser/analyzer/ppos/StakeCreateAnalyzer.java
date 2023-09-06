@@ -55,10 +55,6 @@ public class StakeCreateAnalyzer extends PPOSAnalyzer<NodeOpt> {
      */
     @Override
     public NodeOpt analyze(CollectionEvent event, Transaction tx) {
-        return null;
-    }
-
-    public NodeOpt analyze_old(CollectionEvent event, Transaction tx) {
         // 失败的交易不分析业务数据
         if (Transaction.StatusEnum.FAILURE.getCode() == tx.getStatus())
             return null;
