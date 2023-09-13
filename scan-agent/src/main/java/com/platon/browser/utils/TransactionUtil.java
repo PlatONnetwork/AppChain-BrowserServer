@@ -30,6 +30,7 @@ import com.platon.rlp.solidity.RlpString;
 import com.platon.rlp.solidity.RlpType;
 import com.platon.utils.Numeric;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -324,11 +325,30 @@ public class TransactionUtil {
         /**
          * 内置合约调用交易,解析补充信息
          */
-    public static void resolveInnerContractInvokeTxComplementInfo(com.platon.browser.elasticsearch.dto.Transaction tx, List<Log> logs, ComplementInfo ci) {
+    public static void resolveInnerContractInvokeTxComplementInfo(com.platon.browser.elasticsearch.dto.Transaction tx, Receipt receipt, ComplementInfo ci) {
+
+        if (InnerContractAddrEnum.NODE_CONTRACT.getAddress().equalsIgnoreCase(tx.getTo()) ){
+            //内置质押合约，现在底层有两个方法，一个是StakeStateSync，一个是BlockNumber, 有input的前4个字节表示方法id（这个和PlatON的input构成不同，PlatON是需要对methodId再次rlp编码的）
+
+            byte[] inputBytes = HexUtil.decode(tx.getInput());
+            byte[] methodIdBytes = Arrays.copyOfRange(inputBytes, 0, 4);
+            long methodId = HexUtil.convertToLong(methodIdBytes);
+
+            //这里没有解析input中的method，因为底层StakeStateSync方法的method ID是：3137535113，是个long类型的。这里相当于对这个方法的ID做了转换
+            ci.setType(convertMethodIdToTxType(methodId).getCode());
+            ci.setInfo(JSON.toJSONString(receipt.getRootChainTxs()));
+            ci.setToType(Transaction.ToTypeEnum.INNER_CONTRACT.getCode());
+            ci.setContractType(ContractTypeEnum.INNER.getCode());
+            ci.setMethod(null);
+            ci.setBinCode(null);
+            return;
+        }
+
+
         // 解析交易的输入及交易回执log信息
         String logDataHex = null;
-        if (logs.size()>0){
-            logDataHex = logs.get(0).getData();
+        if (!CollectionUtils.isEmpty(receipt.getLogs())){
+            logDataHex = receipt.getLogs().get(0).getData();
         }
         PPOSTxDecodeResult decodedResult = PPOSTxDecodeUtil.decode(tx.getInput(), logDataHex);
         ci.setInnerContractTxErrCode(decodedResult.getTxErrCode());
@@ -338,6 +358,17 @@ public class TransactionUtil {
         ci.setContractType(ContractTypeEnum.INNER.getCode());
         ci.setMethod(null);
         ci.setBinCode(null);
+    }
+
+
+    private static Transaction.TypeEnum convertMethodIdToTxType(long methodId ){
+        if(methodId == 3137535113L){
+            return Transaction.TypeEnum.ROOT_CHAIN_STATE_SYNC;
+        } else if(methodId == 1474851303L){
+            return Transaction.TypeEnum.ROOT_CHAIN_BLOCK_NUMBER_SYNC;
+        }else{
+            return Transaction.TypeEnum.OTHERS;
+        }
     }
 
     /**

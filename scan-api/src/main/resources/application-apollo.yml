@@ -2,7 +2,7 @@
 env: DEV
 app:
   # 应用ID
-  id: platon-scan-api
+  id: appchain-scan-api
 apollo:
   access-key:
     # 配置访问密钥

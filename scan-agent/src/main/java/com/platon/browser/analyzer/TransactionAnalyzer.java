@@ -276,7 +276,7 @@ public class TransactionAnalyzer {
             // 如果to地址是内置合约地址，则解码交易输入。并且不需要加入相关地址缓存
             watch.start("内置合约处理");
             //解析出内置合约执行的错误代码
-            TransactionUtil.resolveInnerContractInvokeTxComplementInfo(dtoTransaction, receipt.getLogs(), ci);
+            TransactionUtil.resolveInnerContractInvokeTxComplementInfo(dtoTransaction, receipt, ci);
             watch.stop();
             log.debug("当前交易[{}]为内置合约,from[{}],to[{}],解码交易输入", dtoTransaction.getHash(), dtoTransaction.getFrom(), dtoTransaction.getTo());
         } else {

@@ -73,12 +73,12 @@ public class StatisticsNetworkAnalyzerTest extends AgentTestBase {
         when(web3jWrapper.getWeb3j()).thenReturn(web3j);
         EpochInfo epochInfo = new EpochInfo();
         epochInfo.setAvgPackTime(BigDecimal.ONE);
-        epochInfo.setPackageReward("0x99999");
+        epochInfo.setCurPackageReward(new BigDecimal("99999999999999"));
         epochInfo.setRemainEpoch(BigDecimal.TEN);
-        epochInfo.setStakingReward("0x333333");
-        epochInfo.setYearEndNum(BigDecimal.TEN);
-        epochInfo.setYearStartNum(BigDecimal.ONE);
-        epochInfo.setYearNum(BigDecimal.TEN);
+        epochInfo.setCurStakingReward(new BigDecimal("99999999999999"));
+        epochInfo.setChainAge(BigDecimal.TEN);
+        epochInfo.setYearStartBlockNum(BigDecimal.ONE);
+        epochInfo.setYearEndBlockNum(BigDecimal.TEN);
         when(specialApi.getEpochInfo(any(),any())).thenReturn(epochInfo);
     }
 

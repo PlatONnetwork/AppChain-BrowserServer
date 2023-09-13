@@ -1,6 +1,8 @@
 package com.platon.browser.bean;
 
-import com.platon.utils.Numeric;
+import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 
@@ -14,27 +16,27 @@ public class EpochInfo {
     /**
      * 出块奖励--废弃
      */
-    private BigDecimal packageReward;
+    //private BigDecimal packageReward;
 
     /**
      * 结算周期质押奖励--废弃
      */
-    private BigDecimal stakingReward;
+   // private BigDecimal stakingReward;
 
     /**
      * 当前增发周期
      */
-    private BigDecimal yearNum;
+    private BigDecimal chainAge;
 
     /**
      * 当前增发周期开始区块号
      */
-    private BigDecimal yearStartNum;
+    private BigDecimal yearStartBlockNum;
 
     /**
      * 当前增发周期结束区块号
      */
-    private BigDecimal yearEndNum;
+    private BigDecimal yearEndBlockNum;
 
     /**
      * 当前增发周期剩下的结算周期数
@@ -66,44 +68,44 @@ public class EpochInfo {
      */
     private BigDecimal nextStakingReward;
 
-    public BigDecimal getPackageReward() {
+/*    public BigDecimal getPackageReward() {
         return packageReward;
     }
 
-    public void setPackageReward(String packageReward) {
-        this.packageReward = new BigDecimal(Numeric.decodeQuantity(packageReward));
+    public void setPackageReward(BigDecimal packageReward) {
+        this.packageReward = packageReward;
     }
 
     public BigDecimal getStakingReward() {
         return stakingReward;
     }
 
-    public void setStakingReward(String stakingReward) {
-        this.stakingReward = new BigDecimal(Numeric.decodeQuantity(stakingReward));
+    public void setStakingReward(BigDecimal stakingReward) {
+        this.stakingReward = stakingReward;
+    }*/
+
+    public BigDecimal getChainAge() {
+        return chainAge;
     }
 
-    public BigDecimal getYearNum() {
-        return yearNum;
+    public void setChainAge(BigDecimal chainAge) {
+        this.chainAge = chainAge;
     }
 
-    public void setYearNum(BigDecimal yearNum) {
-        this.yearNum = yearNum;
+    public BigDecimal getYearStartBlockNum() {
+        return yearStartBlockNum;
     }
 
-    public BigDecimal getYearStartNum() {
-        return yearStartNum;
+    public void setYearStartBlockNum(BigDecimal yearStartBlockNum) {
+        this.yearStartBlockNum = yearStartBlockNum;
     }
 
-    public void setYearStartNum(BigDecimal yearStartNum) {
-        this.yearStartNum = yearStartNum;
+    public BigDecimal getYearEndBlockNum() {
+        return yearEndBlockNum;
     }
 
-    public BigDecimal getYearEndNum() {
-        return yearEndNum;
-    }
-
-    public void setYearEndNum(BigDecimal yearEndNum) {
-        this.yearEndNum = yearEndNum;
+    public void setYearEndBlockNum(BigDecimal yearEndBlockNum) {
+        this.yearEndBlockNum = yearEndBlockNum;
     }
 
     public BigDecimal getRemainEpoch() {
@@ -126,32 +128,53 @@ public class EpochInfo {
         return curPackageReward;
     }
 
-    public void setCurPackageReward(String curPackageReward) {
-        this.curPackageReward = new BigDecimal(Numeric.decodeQuantity(curPackageReward));
+    public void setCurPackageReward(BigDecimal curPackageReward) {
+        this.curPackageReward = curPackageReward;
     }
 
     public BigDecimal getCurStakingReward() {
         return curStakingReward;
     }
 
-    public void setCurStakingReward(String curStakingReward) {
-        this.curStakingReward = new BigDecimal(Numeric.decodeQuantity(curStakingReward));
+    public void setCurStakingReward(BigDecimal curStakingReward) {
+        this.curStakingReward = curStakingReward;
     }
 
     public BigDecimal getNextPackageReward() {
         return nextPackageReward;
     }
 
-    public void setNextPackageReward(String nextPackageReward) {
-        this.nextPackageReward = new BigDecimal(Numeric.decodeQuantity(nextPackageReward));
+    public void setNextPackageReward(BigDecimal nextPackageReward) {
+        this.nextPackageReward = nextPackageReward;
     }
 
     public BigDecimal getNextStakingReward() {
         return nextStakingReward;
     }
 
-    public void setNextStakingReward(String nextStakingReward) {
-        this.nextStakingReward = new BigDecimal(Numeric.decodeQuantity(nextStakingReward));
+    public void setNextStakingReward(BigDecimal nextStakingReward) {
+        this.nextStakingReward = nextStakingReward;
     }
 
+
+    public static void main(String[] args) throws JsonProcessingException {
+        String json = "{\n" +
+                "\t\"nextPackageReward\": 4580147713699926138,\n" +
+                "\t\"nextStakingReward\": 49236587922274205984720,\n" +
+                "\t\"curPackageReward\": 4580147713699926138,\n" +
+                "\t\"curStakingReward\": 49236587922274205984720,\n" +
+                "\t\"chainAge\": 1,\n" +
+                "\t\"yearStartBlockNum\": 1,\n" +
+                "\t\"yearEndBlockNum\": 28605751,\n" +
+                "\t\"remainEpoch\": 2661,\n" +
+                "\t\"avgPackTime\": 1103\n" +
+                "}";
+        ObjectMapper mapper = new ObjectMapper();
+        EpochInfo epochInfo = mapper.readValue(json, EpochInfo.class);
+        System.out.println("echoInfo:" + JSON.toJSONString(epochInfo));
+
+
+            System.out.println("-1L % 1000L == 0" + (-1L % 1000L == 0));
+
+    }
 }

@@ -52,6 +52,7 @@
     );
     /*2、node新增或更新*/
     insert into `node` (`node_id`,
+        `validator_id`,
         `staking_block_num`,
         `staking_tx_index`,
         `staking_addr`,
@@ -77,6 +78,7 @@
         `low_rate_slash_count`
     ) values (
         #{nodeId},
+        #{validatorId},
         #{stakingBlockNum},
         #{stakingTxIndex},
         #{stakingAddr},
@@ -101,6 +103,8 @@
         #{unStakeEndBlock},
         0
     ) on duplicate key update
+        `node_id` = #{nodeId},
+        `validator_id` = #{validatorId},
         `staking_block_num` =  #{stakingBlockNum},
         `staking_tx_index` = #{stakingTxIndex},
         `staking_addr` = #{stakingAddr},

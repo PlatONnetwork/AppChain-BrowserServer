@@ -1,6 +1,6 @@
 -- 全量脚本
-CREATE DATABASE IF NOT EXISTS `scan_platon_1.4.0.1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `scan_platon_1.4.0.1`;
+CREATE DATABASE IF NOT EXISTS `scan_hskchain` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `scan_hskchain`;
 
 DROP TABLE IF EXISTS `address`;
 CREATE TABLE `address`
@@ -165,6 +165,7 @@ DROP TABLE IF EXISTS `node`;
 CREATE TABLE `node`
 (
     `node_id`                      char(130)        NOT NULL COMMENT '节点id',
+    `validator_id`                 bigint           NOT NULL COMMENT '节点的验证人编号',
     `stat_slash_multi_qty`         int              NOT NULL DEFAULT 0 COMMENT '多签举报次数',
     `stat_slash_low_qty`           int              NOT NULL DEFAULT 0 COMMENT '出块率低举报次数',
     `stat_block_qty`               bigint           NOT NULL DEFAULT 0 COMMENT '节点处块数统计',
@@ -184,7 +185,7 @@ CREATE TABLE `node`
     `external_name`                varchar(128)     COMMENT '第三方社交软件关联用户名',
     `staking_addr`                 char(42)         NOT NULL COMMENT '发起质押的账户地址',
     `benefit_addr`                 char(42)         NOT NULL COMMENT '收益地址',
-    `annualized_rate`              decimal(10, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计年化率',
+    `annualized_rate`              decimal(20, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计年化率',
     `program_version`              int              NOT NULL DEFAULT 0 COMMENT '程序版本',
     `big_version`                  int              NOT NULL DEFAULT 0 COMMENT '大程序版本',
     `web_site`                     varchar(255)     COMMENT '节点的第三方主页',
@@ -208,8 +209,8 @@ CREATE TABLE `node`
     `next_reward_per`              int              NOT NULL DEFAULT 0 COMMENT '下一结算周期委托奖励比例',
     `next_reward_per_mod_epoch`    int              DEFAULT 0 COMMENT '【下一结算周期委托奖励比例】修改所在结算周期',
     `have_dele_reward`             decimal(32, 0)   NOT NULL DEFAULT 0 COMMENT '所有质押已领取委托奖励',
-    `pre_dele_annualized_rate`     decimal(10, 2)   NOT NULL DEFAULT 0.00 COMMENT '前一参与周期预计委托收益率',
-    `dele_annualized_rate`         decimal(10, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计委托收益率',
+    `pre_dele_annualized_rate`     decimal(20, 2)   NOT NULL DEFAULT 0.00 COMMENT '前一参与周期预计委托收益率',
+    `dele_annualized_rate`         decimal(20, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计委托收益率',
     `total_dele_reward`            decimal(32, 0)   NOT NULL DEFAULT 0 COMMENT '当前质押总的委托奖励',
     `pre_total_dele_reward`        decimal(32, 0)   NOT NULL DEFAULT 0 COMMENT '所有历史质押记录总的委托奖励累计字段(在质押退出时会把total_dele_reward累加到此字段)',
     `exception_status`             tinyint          NOT NULL DEFAULT 1 COMMENT '1正常,2低出块异常,3被双签,4因低出块被惩罚(例如在连续两个周期当选验证人，但在第一个周期出块率低),5因双签被惩罚',
@@ -222,6 +223,7 @@ CREATE TABLE `node`
     `create_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`node_id`),
+    UNIQUE (`validator_id`),
     KEY `status` (`status`),
     KEY `staking_addr` (`staking_addr`),
     KEY `benefit_addr` (`benefit_addr`),
@@ -322,7 +324,7 @@ CREATE TABLE `staking`
     `external_name`                varchar(128)     COMMENT '第三方社交软件关联用户名',
     `staking_addr`                 char(42)         NOT NULL COMMENT '发起质押的账户地址',
     `benefit_addr`                 char(42)         NOT NULL DEFAULT '' COMMENT '收益地址',
-    `annualized_rate`              decimal(10, 2)    NOT NULL DEFAULT 0.00 COMMENT '预计年化率,百分之x,则存x',
+    `annualized_rate`              decimal(20, 2)    NOT NULL DEFAULT 0.00 COMMENT '预计年化率,百分之x,则存x',
     `program_version`              varchar(10)      NOT NULL DEFAULT '0' COMMENT '程序版本',
     `big_version`                  varchar(10)      NOT NULL DEFAULT '0' COMMENT '大程序版本',
     `web_site`                     varchar(255)     NOT NULL DEFAULT '' COMMENT '节点的第三方主页',
@@ -347,8 +349,8 @@ CREATE TABLE `staking`
     `next_reward_per`              int              NOT NULL DEFAULT 0 COMMENT '下一结算周期委托奖励比例',
     `next_reward_per_mod_epoch`    int              DEFAULT 0 COMMENT '【下一结算周期委托奖励比例】修改所在结算周期',
     `have_dele_reward`             decimal(32, 0)   NOT NULL DEFAULT 0 COMMENT '节点当前质押已领取委托奖励',
-    `pre_dele_annualized_rate`     decimal(10, 2)   NOT NULL DEFAULT 0.00 COMMENT '前一参与周期预计委托收益率',
-    `dele_annualized_rate`         decimal(10, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计委托收益率',
+    `pre_dele_annualized_rate`     decimal(20, 2)   NOT NULL DEFAULT 0.00 COMMENT '前一参与周期预计委托收益率',
+    `dele_annualized_rate`         decimal(20, 2)   NOT NULL DEFAULT 0.00 COMMENT '预计委托收益率',
     `total_dele_reward`            decimal(32, 0)   DEFAULT 0 COMMENT '节点当前质押总的委托奖励',
     `exception_status`             tinyint          NOT NULL DEFAULT 1 COMMENT '1正常,2低出块异常,3被双签,4因低出块被惩罚(例如在连续两个周期当选验证人，但在第一个周期出块率低),5因双签被惩罚',
     `un_stake_freeze_duration`     int              NOT NULL COMMENT '解质押理论上锁定的结算周期数',
@@ -358,6 +360,7 @@ CREATE TABLE `staking`
     `low_rate_slash_count`         int              NOT NULL DEFAULT 0 COMMENT '节点零出块次数',
     `create_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    -- `root_chain_tx_hash`           char(66)         NULL COMMENT 'PlatON上交易hash',
     PRIMARY KEY (`node_id`, `staking_block_num`),
     KEY (`staking_addr`),
     INDEX (`status`)

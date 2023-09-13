@@ -1,10 +1,16 @@
 package com.platon.browser.service.ppos;
 
+import com.alibaba.fastjson.JSON;
 import com.platon.browser.analyzer.ppos.*;
+import com.platon.browser.analyzer.ppos.appchain.RootChainTxAnalyzer;
 import com.platon.browser.bean.CollectionEvent;
 import com.platon.browser.bean.DelegateExitResult;
+import com.platon.browser.bean.Receipt;
 import com.platon.browser.bean.TxAnalyseResult;
+import com.platon.browser.bean.appchain.RootChainTx;
 import com.platon.browser.cache.NetworkStatCache;
+import com.platon.browser.dao.entity.RootChainTxDto;
+import com.platon.browser.dao.mapper.RootChainTxMapper;
 import com.platon.browser.elasticsearch.dto.Block;
 import com.platon.browser.elasticsearch.dto.DelegationReward;
 import com.platon.browser.elasticsearch.dto.NodeOpt;
@@ -18,6 +24,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @description: ppos服务
@@ -78,6 +86,28 @@ public class PPOSService {
 
     // 前一个区块号
     private long preBlockNumber = 0L;
+
+    @Resource
+    private RootChainTxAnalyzer rootChainTxAnalyzer;
+
+    @Resource
+    private RootChainTxMapper rootChainTxMapper;
+
+    private static List<RootChainTxDto> convert(List<RootChainTx> rootChainTxList, String txHash, Long blockNumber){
+        return rootChainTxList.stream().map(tx -> {
+            RootChainTxDto dtoTx = new RootChainTxDto();
+            dtoTx.setBlockNumber(blockNumber);
+            dtoTx.setTxHash(txHash);
+            dtoTx.setRootChainBlockNumber(tx.getRootChainBlockNumber());
+            dtoTx.setRootChainTxHash(tx.getRootChainTxHash());
+            dtoTx.setRootChainTxIndex(tx.getRootChainTxIndex());
+            dtoTx.setTxType(tx.getTxType().name());
+            dtoTx.setTxParamInfo(JSON.toJSONString(tx.getTxParam()));
+            return dtoTx;
+        }).collect(Collectors.toList());
+
+
+    }
 
     /**
      * 解析交易, 构造业务入库参数信息
@@ -147,6 +177,26 @@ public class PPOSService {
         return tar;
     }
 
+    private void analyzeRootChainTx(CollectionEvent event, Transaction tx, RootChainTx rootChainTx, TxAnalyseResult tar) {
+        NodeOpt nodeOpt = null;
+        switch (rootChainTx.getTxType()){
+            case Stake:
+                nodeOpt = this.rootChainTxAnalyzer.stake(event, tx, rootChainTx);
+                tar.getNodeOptList().add(nodeOpt);
+                break;
+            case UnStake:
+                nodeOpt = this.rootChainTxAnalyzer.unstake(event, tx, rootChainTx);
+                tar.getNodeOptList().add(nodeOpt);
+                break;
+            case Delegate:
+                this.rootChainTxAnalyzer.delegate(event, tx, rootChainTx);
+                break;
+            case  UnDelegate:
+                this.rootChainTxAnalyzer.undelegate(event, tx, rootChainTx);
+                break;
+        }
+    }
+
     /**
      * 分析真实交易
      *
@@ -163,6 +213,20 @@ public class PPOSService {
             NodeOpt nodeOpt = null;
             DelegationReward delegationReward = null;
             switch (tx.getTypeEnum()) {
+                case ROOT_CHAIN_STATE_SYNC:
+                    Map<String, Receipt> receiptMap = event.getBlock().getReceiptMap();
+                    Receipt receipt = receiptMap.get(tx.getHash());
+
+                    if(receipt.getRootChainTxs().size()>0){
+                        List<RootChainTxDto> rootChainTxDtoList = new ArrayList<>(convert(receipt.getRootChainTxs(), tx.getHash(), tx.getNum()));
+                        rootChainTxMapper.batchInsert(rootChainTxDtoList);
+
+                        for (RootChainTx rootChainTx : receipt.getRootChainTxs()) {
+                            //nodeOpt已经加入tar
+                            this.analyzeRootChainTx(event, tx, rootChainTx, tar);
+                        }
+                    }
+                    break;
                 case STAKE_CREATE:
                     nodeOpt = this.stakeCreateAnalyzer.analyze(event, tx);
                     break;

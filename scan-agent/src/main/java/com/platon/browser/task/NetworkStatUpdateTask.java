@@ -151,15 +151,17 @@ public class NetworkStatUpdateTask {
             networkStat.setDoingProposalQty(doingProposalQty);
             networkStat.setProposalQty(proposalQty);
             networkStat.setNodeOptSeq(nodeOptSeq);
-            XxlJobHelper.handleSuccess(StrUtil.format("更新交易统计数成功，交易总数为[{}],erc20交易数为[{}],erc721交易数为[{}],erc1155交易数为[{}],地址数为[{}],进行中提案总数为[{}],提案总数为[{}],节点操作数为[{}]",
-                                                      totalCount.intValue(),
-                                                      erc20Count.intValue(),
-                                                      erc721Count.intValue(),
-                                                      erc1155Count.intValue(),
-                                                      addressQty,
-                                                      doingProposalQty,
-                                                      proposalQty,
-                                                      nodeOptSeq));
+            String msg = StrUtil.format("更新交易统计数成功，交易总数为[{}],erc20交易数为[{}],erc721交易数为[{}],erc1155交易数为[{}],地址数为[{}],进行中提案总数为[{}],提案总数为[{}],节点操作数为[{}]",
+                    totalCount.intValue(),
+                    erc20Count.intValue(),
+                    erc721Count.intValue(),
+                    erc1155Count.intValue(),
+                    addressQty,
+                    doingProposalQty,
+                    proposalQty,
+                    nodeOptSeq);
+            XxlJobHelper.handleSuccess(msg);
+            log.debug(msg);
         } catch (Exception e) {
             log.error("更新交易统计数异常", e);
             throw e;
@@ -190,6 +192,7 @@ public class NetworkStatUpdateTask {
                                         stakingValue.toPlainString());
             XxlJobHelper.log(msg);
             XxlJobHelper.handleSuccess(msg);
+            log.debug(msg);
         } catch (Exception e) {
             log.error("网络统计任务出错:", e);
             throw e;

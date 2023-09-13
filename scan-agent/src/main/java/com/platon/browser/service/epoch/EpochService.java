@@ -59,6 +59,7 @@ public class EpochService {
         BigInteger prevBlockNumber = currentBlockNumber.subtract(BigInteger.ONE);
 
         // 为防止在增发、结算、共识三个周期重叠时奖励金额计算错误，规定执行顺序为：增发周期变更->结算周期变更->共识周期变更
+        log.info("chainConfig.getAddIssuePeriodBlockCount():{}", chainConfig.getAddIssuePeriodBlockCount());
         issueEpochRound = EpochUtil.getEpoch(currentBlockNumber, chainConfig.getAddIssuePeriodBlockCount());
         if (prevBlockNumber.longValue() % chainConfig.getAddIssuePeriodBlockCount().longValue() == 0) {
             // 增发周期变更

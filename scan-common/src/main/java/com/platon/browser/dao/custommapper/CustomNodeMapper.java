@@ -5,6 +5,7 @@ import com.platon.browser.dao.entity.Node;
 import com.platon.browser.dao.entity.NodeExample;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,8 @@ public interface CustomNodeMapper {
      * @method findNameById
      */
     String findNameById(String nodeId);
+
+    Node findByValidatorId(BigInteger validatorId);
 
     /**
      * 根据条件查询列表

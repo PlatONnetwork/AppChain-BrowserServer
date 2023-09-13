@@ -1,5 +1,6 @@
 package com.platon.browser.bean;
 
+import com.platon.browser.bean.appchain.RootChainTx;
 import com.platon.protocol.core.methods.response.Log;
 import com.platon.rlp.solidity.RlpDecoder;
 import com.platon.rlp.solidity.RlpList;
@@ -30,6 +31,7 @@ public class Receipt {
     private List<EmbedTransfer> embedTransfers;  //原始交易执行后，引起的内置LAT转账交易
     private List<ImplicitPPOSTx> implicitPPOSTxs;  //原始交易执行后，引起的内置LAT转账交易
     private List<String> topics;
+    private List<RootChainTx> rootChainTxs;
 
     private int logStatus;
 

@@ -95,13 +95,13 @@ mybatis:
   # 实体类别名配置（注意：对应实体类的路径）
   type-aliases-package: com.platon.browser.dao.entity
 # 当前激活的配置名称(请不要修改)
-profile: platon
+profile: appchain
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
-  addressPrefix: lat
+  addressPrefix: hsk
   # 金额显示单位
-  valueUnit: LAT
+  valueUnit: hashi
   # 交易输入参数并行解码线程数
   txLogDecodeThreadNum: 200
   # Web3j访问地址
@@ -174,7 +174,7 @@ xxl:
     logretentiondays: 90
     executor:
       #执行器AppName
-      appname: platon-scan-job
+      appname: appchain-scan-job
       #任务执行器部署所在的机器Ip,不配置的话，自动注册当前地址到调度中心
       ip: 192.168.21.114
       #执行器端口号
