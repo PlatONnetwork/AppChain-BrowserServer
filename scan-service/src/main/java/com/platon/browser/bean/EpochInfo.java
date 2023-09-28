@@ -3,6 +3,7 @@ package com.platon.browser.bean;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
  *
  * @date: 2021/12/22
  */
+@Data
 public class EpochInfo {
 
     /**
@@ -24,7 +26,7 @@ public class EpochInfo {
    // private BigDecimal stakingReward;
 
     /**
-     * 当前增发周期
+     * 当前增发周期 //starts from 1
      */
     private BigDecimal chainAge;
 
@@ -68,95 +70,6 @@ public class EpochInfo {
      */
     private BigDecimal nextStakingReward;
 
-/*    public BigDecimal getPackageReward() {
-        return packageReward;
-    }
-
-    public void setPackageReward(BigDecimal packageReward) {
-        this.packageReward = packageReward;
-    }
-
-    public BigDecimal getStakingReward() {
-        return stakingReward;
-    }
-
-    public void setStakingReward(BigDecimal stakingReward) {
-        this.stakingReward = stakingReward;
-    }*/
-
-    public BigDecimal getChainAge() {
-        return chainAge;
-    }
-
-    public void setChainAge(BigDecimal chainAge) {
-        this.chainAge = chainAge;
-    }
-
-    public BigDecimal getYearStartBlockNum() {
-        return yearStartBlockNum;
-    }
-
-    public void setYearStartBlockNum(BigDecimal yearStartBlockNum) {
-        this.yearStartBlockNum = yearStartBlockNum;
-    }
-
-    public BigDecimal getYearEndBlockNum() {
-        return yearEndBlockNum;
-    }
-
-    public void setYearEndBlockNum(BigDecimal yearEndBlockNum) {
-        this.yearEndBlockNum = yearEndBlockNum;
-    }
-
-    public BigDecimal getRemainEpoch() {
-        return remainEpoch;
-    }
-
-    public void setRemainEpoch(BigDecimal remainEpoch) {
-        this.remainEpoch = remainEpoch;
-    }
-
-    public BigDecimal getAvgPackTime() {
-        return avgPackTime;
-    }
-
-    public void setAvgPackTime(BigDecimal avgPackTime) {
-        this.avgPackTime = avgPackTime;
-    }
-
-    public BigDecimal getCurPackageReward() {
-        return curPackageReward;
-    }
-
-    public void setCurPackageReward(BigDecimal curPackageReward) {
-        this.curPackageReward = curPackageReward;
-    }
-
-    public BigDecimal getCurStakingReward() {
-        return curStakingReward;
-    }
-
-    public void setCurStakingReward(BigDecimal curStakingReward) {
-        this.curStakingReward = curStakingReward;
-    }
-
-    public BigDecimal getNextPackageReward() {
-        return nextPackageReward;
-    }
-
-    public void setNextPackageReward(BigDecimal nextPackageReward) {
-        this.nextPackageReward = nextPackageReward;
-    }
-
-    public BigDecimal getNextStakingReward() {
-        return nextStakingReward;
-    }
-
-    public void setNextStakingReward(BigDecimal nextStakingReward) {
-        this.nextStakingReward = nextStakingReward;
-    }
-
-
     public static void main(String[] args) throws JsonProcessingException {
         String json = "{\n" +
                 "\t\"nextPackageReward\": 4580147713699926138,\n" +
@@ -172,9 +85,6 @@ public class EpochInfo {
         ObjectMapper mapper = new ObjectMapper();
         EpochInfo epochInfo = mapper.readValue(json, EpochInfo.class);
         System.out.println("echoInfo:" + JSON.toJSONString(epochInfo));
-
-
-            System.out.println("-1L % 1000L == 0" + (-1L % 1000L == 0));
-
+        System.out.println("-1L % 1000L == 0" + (-1L % 1000L == 0));
     }
 }

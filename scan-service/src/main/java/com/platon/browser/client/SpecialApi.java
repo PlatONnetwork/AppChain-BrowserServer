@@ -150,11 +150,13 @@ public class SpecialApi {
     }
 
     private DefaultBlockParameter convertBlockNumber(BigInteger number) {
-        DefaultBlockParameter blockParameter = DefaultBlockParameterName.LATEST;
-        if(number!=null){
-            blockParameter = DefaultBlockParameter.valueOf(number);
+        if (number==null){
+            return DefaultBlockParameterName.LATEST;
         }
-        return blockParameter;
+        if(number.longValue() < 0){
+            number = BigInteger.ZERO;
+        }
+        return DefaultBlockParameter.valueOf(number);
     }
 
     /**
@@ -575,16 +577,16 @@ public class SpecialApi {
     public static void main(String[] args){
         List<RestrictingBalance> list = new ArrayList<>();
         RestrictingBalance obj1 = new RestrictingBalance();
-        obj1.setLockBalance((BigInteger)null);
-        obj1.setPledgeBalance((BigInteger)null);
+        obj1.setRestrictingPlanLockedAmount((BigInteger)null);
+        obj1.setRestrictingPlanPledgeAmount((BigInteger)null);
 
         RestrictingBalance obj2 = new RestrictingBalance();
-        obj2.setLockBalance((BigInteger)null);
-        obj2.setPledgeBalance((BigInteger)null);
+        obj2.setRestrictingPlanLockedAmount((BigInteger)null);
+        obj2.setRestrictingPlanPledgeAmount((BigInteger)null);
 
         RestrictingBalance obj3 = new RestrictingBalance();
-        obj3.setLockBalance((BigInteger)null);
-        obj3.setPledgeBalance((BigInteger)null);
+        obj3.setRestrictingPlanLockedAmount((BigInteger)null);
+        obj3.setRestrictingPlanPledgeAmount((BigInteger)null);
 
         list.add(obj1);
         list.add(obj2);
@@ -592,10 +594,10 @@ public class SpecialApi {
 
         BigInteger ss3 = list.stream().map((o) -> {
             if (o.getRestrictingPlanLockedAmount()==null){
-                o.setLockBalance(BigInteger.ZERO);
+                o.setRestrictingPlanLockedAmount(BigInteger.ZERO);
             }
             if (o.getRestrictingPlanPledgeAmount()==null){
-                o.setPledgeBalance(BigInteger.ZERO);
+                o.setRestrictingPlanPledgeAmount(BigInteger.ZERO);
             }
             return o.getRestrictingPlanLockedAmount().add(o.getRestrictingPlanPledgeAmount());
         }).reduce(BigInteger.ZERO, (x, y) -> x.add(y));
