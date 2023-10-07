@@ -1,6 +1,5 @@
 package com.platon.browser.task;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -19,13 +18,13 @@ import com.platon.browser.enums.ErcTypeEnum;
 import com.platon.browser.service.erc.ErcServiceImpl;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.TaskUtil;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
@@ -101,7 +100,9 @@ public class ErcTokenUpdateTask {
      * @return void
      * @date 2021/1/18
      */
-    @XxlJob("totalUpdateTokenTotalSupplyJobHandler")
+    //@XxlJob("totalUpdateTokenTotalSupplyJobHandler")
+    @Scheduled(cron =  "${jobs.updateTokenTotalSupply.cron:* 0/5 * * * ?}")
+    @Transactional
     public void totalUpdateTokenTotalSupply() {
         try {
             log.debug(">>>>开始执行:全量更新token的总供应量");
@@ -133,7 +134,9 @@ public class ErcTokenUpdateTask {
      * @return void
      * @date 2021/4/17
      */
-    @XxlJob("totalUpdateTokenInventoryJobHandler")
+    //@XxlJob("totalUpdateTokenInventoryJobHandler")
+    @Scheduled(cron =  "${jobs.updateTokenInventory.cron:* 0/10 * * * ?}")
+    @Transactional
     public void totalUpdateTokenInventory() {
         log.debug(">>>>开始执行:全量更新token库存信息");
         StopWatch watch = new StopWatch("全量更新token库存信息");
@@ -160,7 +163,9 @@ public class ErcTokenUpdateTask {
      * @return void
      * @date 2021/4/17
      */
-    @XxlJob("updateTokenUrlJobHandler")
+    //@XxlJob("updateTokenUrlJobHandler")
+    @Scheduled(cron =  "${jobs.updateTokenUrl.cron:* 0/5 * * * ?}")
+    @Transactional
     public void updateTokenUrlJobHandler() {
         log.debug(">>>>开始执行:更新token的URL");
         StopWatch watch = new StopWatch("更新token的URL");
@@ -253,7 +258,6 @@ public class ErcTokenUpdateTask {
                             totalSupplyUpdated.add(token);
                         }
                     } catch (Exception e) {
-                        XxlJobHelper.log(StrUtil.format("该token[{}]查询总供应量异常", token.getAddress()));
                         log.error("查询总供应量异常", e);
                     } finally {
                         latch.countDown();
@@ -268,7 +272,6 @@ public class ErcTokenUpdateTask {
 
         watch.stop();
         log.debug("结束执行:全量更新token的总供应量任务，耗时统计:{}ms", watch.getLastTaskTimeMillis());
-        XxlJobHelper.log("全量更新token的总供应量成功");
     }
 
     /**
@@ -281,7 +284,7 @@ public class ErcTokenUpdateTask {
         }
 
         // 分页更新token库存相关信息
-        int batchSize = Convert.toInt(XxlJobHelper.getJobParam(), 100);
+        int batchSize = 100;
         int pageNo = 1;
 
         int recordCount = 0;
@@ -309,7 +312,7 @@ public class ErcTokenUpdateTask {
                 try {
                     countDownLatch.await(60, TimeUnit.SECONDS);
                     customToken721InventoryMapper.batchUpdateTokenUrl(nftList);
-                    XxlJobHelper.log("补齐NFT-721的URL：{}", JSONUtil.toJsonStr(nftList));
+                    log.debug("补齐NFT-721的URL：{}", JSONUtil.toJsonStr(nftList));
 
                 } catch (Exception e) {
                     log.error("补齐NFT-721的URL任务异常", e);
@@ -330,7 +333,7 @@ public class ErcTokenUpdateTask {
         }
 
         // 分页更新token库存相关信息
-        int batchSize = Convert.toInt(XxlJobHelper.getJobParam(), 100);
+        int batchSize = 100;
         int pageNo = 1;
 
         int recordCount = 0;
@@ -357,7 +360,7 @@ public class ErcTokenUpdateTask {
                 try {
                     countDownLatch.await(60, TimeUnit.SECONDS);
                     customToken1155InventoryMapper.batchUpdateTokenUrl(nftList);
-                    XxlJobHelper.log("补齐NFT-721的URL：{}", JSONUtil.toJsonStr(nftList));
+                    log.debug("补齐NFT-721的URL：{}", JSONUtil.toJsonStr(nftList));
 
                 } catch (Exception e) {
                     log.error("补齐NFT-1155的URL任务异常", e);
@@ -382,7 +385,7 @@ public class ErcTokenUpdateTask {
         }
 
         // 分页更新token库存相关信息
-        int batchSize = Convert.toInt(XxlJobHelper.getJobParam(), 100);
+        int batchSize = 100;
         int pageNo = 1;
 
         int recordCount = 0;
@@ -425,7 +428,7 @@ public class ErcTokenUpdateTask {
                 try {
                     countDownLatch.await(60, TimeUnit.SECONDS);
                     customToken721InventoryMapper.batchUpdateTokenInfo(nftList);
-                    XxlJobHelper.log("NFT(ERC_721)属性更新：{}", JSONUtil.toJsonStr(nftList));
+                    log.debug("NFT(ERC_721)属性更新：{}", JSONUtil.toJsonStr(nftList));
 
                 } catch (Exception e) {
                     log.error("NFT(ERC_721)属性更新异常", e);
@@ -449,7 +452,7 @@ public class ErcTokenUpdateTask {
         }
 
         // 分页更新token库存相关信息
-        int batchSize = Convert.toInt(XxlJobHelper.getJobParam(), 100);
+        int batchSize = 100;
         int pageNo = 1;
 
         int recordCount = 0;
@@ -493,7 +496,7 @@ public class ErcTokenUpdateTask {
                 try {
                     countDownLatch.await(60, TimeUnit.SECONDS);
                       customToken1155InventoryMapper.batchUpdateTokenInfo(nftList);
-                    XxlJobHelper.log("NFT(ERC_1155)属性更新：{}", JSONUtil.toJsonStr(nftList));
+                    log.debug("NFT(ERC_1155)属性更新：{}", JSONUtil.toJsonStr(nftList));
 
                 } catch (Exception e) {
                     log.error("NFT(ERC_1155)属性更新异常", e);

@@ -14,7 +14,6 @@ import com.platon.browser.elasticsearch.dto.Transaction;
 import com.platon.browser.utils.AddressUtil;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.TaskUtil;
-import com.xxl.job.core.context.XxlJobHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
@@ -43,6 +42,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Slf4j
+@Deprecated
 public class AddressUpdateTask {
 
     @Resource
@@ -71,9 +71,6 @@ public class AddressUpdateTask {
      * @return: void
      * @date: 2021/12/7
      */
-
-    //@XxlJob("addressUpdateJobHandler")
-    //@Transactional(rollbackFor = {Exception.class, Error.class})
     public void updateStakingDelegationStats() {
         // 只有程序正常运行才执行任务
         if (!AppStatusUtil.isRunning()) {
@@ -214,12 +211,10 @@ public class AddressUpdateTask {
      * 2023/04/06, lvxiaoyi: 改成用trigger来更新地址的交易数
      * @deprecated
      */
-    //@XxlJob("updateAddressQtyJobHandler")
-    //@Transactional(rollbackFor = {Exception.class, Error.class})
     @Deprecated
     public void updateTxQty() throws Exception {
         try {
-            int pageSize = Convert.toInt(XxlJobHelper.getJobParam(), 500);
+            int pageSize = 500;
             PointLog pointLog = pointLogMapper.selectByPrimaryKey(2);
             long oldPosition = Convert.toLong(pointLog.getPosition());
             TaskUtil.console("当前页数为[{}]，断点为[{}]", pageSize, oldPosition);
@@ -251,7 +246,7 @@ public class AddressUpdateTask {
                 TaskUtil.console("更新后的数据为{}", JSONUtil.toJsonStr(map.values()));
                 TaskUtil.console("更新地址交易数，断点(交易id)为[{}]->[{}]，更新[{}]个地址", oldPosition, pointLog.getPosition(), list.size());
             } else {
-                XxlJobHelper.handleSuccess(StrUtil.format("最新断点[{}]未找到交易列表，更新地址交易数完成", oldPosition));
+               log.debug(StrUtil.format("最新断点[{}]未找到交易列表，更新地址交易数完成", oldPosition));
             }
         } catch (Exception e) {
             log.error("更新地址交易数异常", e);
@@ -365,7 +360,6 @@ public class AddressUpdateTask {
         if (addressList.size() != addressSet.size()) {
             Set<String> address1 = addressList.stream().map(Address::getAddress).collect(Collectors.toSet());
             String msg = StrUtil.format("交易解出来的地址在数据库查找不到，缺失的地址为{}", JSONUtil.toJsonStr(CollUtil.subtractToList(addressSet, address1)));
-            XxlJobHelper.log(msg);
             log.error(msg);
             throw new Exception("更新地址交易数异常");
         }

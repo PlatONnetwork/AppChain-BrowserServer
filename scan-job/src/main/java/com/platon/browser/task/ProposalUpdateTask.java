@@ -17,9 +17,8 @@ import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.MarkDownParserUtil;
 import com.platon.browser.utils.TaskUtil;
 import com.platon.contracts.ppos.dto.resp.TallyResult;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
@@ -43,8 +42,10 @@ public class ProposalUpdateTask {
     @Resource
     private NetworkStatMapper networkStatMapper;
 
-    @XxlJob("proposalUpdateJobHandler")
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+   /* @XxlJob("proposalUpdateJobHandler")
+    @Transactional(rollbackFor = {Exception.class, Error.class})*/
+   @Scheduled(cron =  "${jobs.proposalUpdate.cron:0/15 * * * * ?}")
+   @Transactional
     public void proposalUpdate() {
         // 只有程序正常运行才执行任务
         if (!AppStatusUtil.isRunning()) {
@@ -89,7 +90,7 @@ public class ProposalUpdateTask {
                 proposal.setCompletionFlag(CustomProposal.FlagEnum.COMPLETE.getCode());
             }
             customProposalMapper.updateProposalBasicInfo(proposals);
-            XxlJobHelper.handleSuccess("更新提案详情定时任务完成");
+            log.debug("更新提案详情定时任务完成");
         } catch (Exception e) {
             log.error("更新提案详情定时任务异常", e);
             throw e;

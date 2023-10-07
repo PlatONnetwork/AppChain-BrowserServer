@@ -8,6 +8,7 @@ import com.platon.browser.utils.AppStatusUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -33,6 +34,7 @@ public class BatchSizeAdjustTask {
     private TaskConfig taskConfig;
 
     @Scheduled(cron = "0/30 * * * * ?")
+    @Transactional
     public void batchSizeAdjust() {
         // 只有程序正常运行才执行任务
         if (AppStatusUtil.isRunning())

@@ -8,9 +8,8 @@ import com.platon.browser.dao.entity.PointLog;
 import com.platon.browser.dao.mapper.NOptBakMapper;
 import com.platon.browser.dao.mapper.PointLogMapper;
 import com.platon.browser.service.elasticsearch.EsNodeOptService;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,14 +39,17 @@ public class NodeOptTask {
      * @return: void
      * @date: 2021/12/1
      */
-    @XxlJob("nodeOptMoveToESJobHandler")
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    /*@XxlJob("nodeOptMoveToESJobHandler")
+    @Transactional(rollbackFor = {Exception.class, Error.class})*/
+
+    @Scheduled(cron =  "${jobs.nodeOptDataMigrateToES.cron:* 0/3 * * * ?}")
+    @Transactional
     public void nodeOptMoveToES() throws Exception {
         try {
-            int batchSize = Convert.toInt(XxlJobHelper.getJobParam(), 10);
+            int batchSize = 10;
             PointLog pointLog = pointLogMapper.selectByPrimaryKey(1);
             long oldPosition = Convert.toLong(pointLog.getPosition());
-            XxlJobHelper.log("当前页数为[{}]，断点为[{}]", batchSize, oldPosition);
+            log.debug("当前页数为[{}]，断点为[{}]", batchSize, oldPosition);
             NOptBakExample nOptBakExample = new NOptBakExample();
             nOptBakExample.setOrderByClause("id asc limit " + batchSize);
             nOptBakExample.createCriteria().andIdGreaterThan(oldPosition);
@@ -58,11 +60,10 @@ public class NodeOptTask {
                 NOptBak lastNOptBak = CollUtil.getLast(nOptBakList);
                 pointLog.setPosition(lastNOptBak.getId().toString());
                 pointLogMapper.updateByPrimaryKeySelective(pointLog);
-                XxlJobHelper.log("节点操作备份表迁移到ES成功，断点[{}]->[{}]", oldPosition, pointLog.getPosition());
+                log.debug("节点操作备份表迁移到ES成功，断点[{}]->[{}]", oldPosition, pointLog.getPosition());
             } else {
-                XxlJobHelper.log("当前断点[{}]未找到节点备份信息", oldPosition);
+                log.debug("当前断点[{}]未找到节点备份信息", oldPosition);
             }
-            XxlJobHelper.handleSuccess("节点操作备份表迁移到ES成功");
         } catch (Exception e) {
             log.error("节点操作备份表迁移到ES异常", e);
             throw e;

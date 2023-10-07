@@ -35,7 +35,8 @@ public class TaskAspect {
         add("com.platon.browser.task.UpdateTokenQtyTask");
     }};
 
-    @Pointcut(value = "@annotation(com.xxl.job.core.handler.annotation.XxlJob)")
+    //@Pointcut(value = "@annotation(com.xxl.job.core.handler.annotation.XxlJob)")
+    @Pointcut(value = "@annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void access() {
 
     }

@@ -15,7 +15,6 @@ import com.platon.browser.dao.mapper.TxErc721BakMapper;
 import com.platon.browser.elasticsearch.dto.ErcTx;
 import com.platon.browser.utils.AddressUtil;
 import com.platon.browser.utils.TaskUtil;
-import com.xxl.job.core.context.XxlJobHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +71,7 @@ public class UpdateTokenQtyTask {
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public void updateTokenQty() throws Exception {
         try {
-            int pageSize = Convert.toInt(XxlJobHelper.getJobParam(), 500);
+            int pageSize = 500;
             //
             // 重要：
             // 合约上交易数量的缓存key：合约地址; value:TokenQty，合约交易数量。
@@ -233,7 +232,7 @@ public class UpdateTokenQtyTask {
                 pointLogMapper.updateByPrimaryKeySelective(erc1155PointLog);
                 TaskUtil.console("更新erc交易数，erc1155断点为[{}]->[{}]", oldErc1155Position, erc1155PointLog.getPosition());
             }
-            XxlJobHelper.handleSuccess("更新erc交易数成功");
+            log.debug("更新erc交易数成功");
         } catch (Exception e) {
             log.error("更新erc交易数异常", e);
             throw e;

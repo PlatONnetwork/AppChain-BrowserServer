@@ -89,13 +89,19 @@ spring:
       erc20TxIndexName: ${platon.es-namespace}_erc20_tx
       erc721TxIndexName: ${platon.es-namespace}_erc721_tx
       erc1155TxIndexName: ${platon.es-namespace}_erc1155_tx
+  # 定时任务线程数量，保证每个Scheduled一个线程。这样每个scheduled直接不会互相阻塞
+  task:
+    scheduling:
+      pool:
+        size: 11
+
 # MyBatis配置（注意：一定要对应mapper映射xml文件的所在路径）
 mybatis:
   mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
   # 实体类别名配置（注意：对应实体类的路径）
   type-aliases-package: com.platon.browser.dao.entity
 # 当前激活的配置名称(请不要修改)
-profile: appchain
+profile: hskchain
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
@@ -152,6 +158,8 @@ platon:
       pageCount: 250
   #Es索引命名空间
   es-namespace: browser_${profile}
+
+# 定时任务的参数配置(代码中没有用到，可以注释掉）
 task:
   #允许更新的最大地址数量
   maxAddressCount: 5004
@@ -163,26 +171,40 @@ logging:
   level:
     org.springframework: error
     com.platon.browser.task: debug
-xxl:
-  job:
-    admin:
-      #调度中心部署跟地址
-      addresses: http://10.0.0.34:8060/xxl-job-admin
-    #调度中心通讯TOKEN
-    accessToken: ENC(IZf5O7X2oiVstkwHNZUxEhPzDKInPh0TexHqj7b4YY39c10DzZaDqqQYWoSw8l2q)
-    #调度中心日志文件保存天数
-    logretentiondays: 90
-    executor:
-      #执行器AppName
-      appname: appchain-scan-job
-      #任务执行器部署所在的机器Ip,不配置的话，自动注册当前地址到调度中心
-      ip: 192.168.21.114
-      #执行器端口号
-      port: 9997
-      #执行器运行日志文件存储磁盘路径
-      logpath: ./logs/jobhandler
-      #执行器日志文件保存天数
-      logretentiondays: 90
+
+# 定时任务调度配置
+jobs:
+  # 每6分钟执行一次
+  updateFundAccount.cron: 0 0/6 * * * ?
+
+  # 每10秒执行一次
+  updateInnerContractAccount.cron: 0/10 * * * * ?
+
+  # 每30秒执行一次
+  delegateDataMigrateToES.cron: 0/30 * * * * ?
+
+  # 每5分钟执行一次
+  updateTokenTotalSupply.cron: 0 0/5 * * * ?
+
+  # 每10分钟执行一次
+  updateTokenInventory.cron: 0 0/10 * * * ?
+
+  # 每5分钟执行一次
+  updateTokenUrl.cron: 0 0/5 * * * ?
+
+  # 每3分钟执行一次
+  nodeOptDataMigrateToES.cron: 0 0/3 * * * ?
+
+  # 每5秒执行一次
+  nodeUpdate.cron: 0/5 * * * * ?
+
+  # 每15秒执行一次
+  proposalUpdate.cron: 0/15 * * * * ?
+
+  # 每30秒执行一次
+  stakingDataMigrateToES.cron: 0/30 * * * * ?
+
+
 apollo:
   bootstrap:
     # 是否开启 Apollo

@@ -11,7 +11,6 @@ import com.platon.browser.exception.BusinessException;
 import com.platon.browser.exception.HttpRequestException;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.MarkDownParserUtil;
-import com.xxl.job.core.context.XxlJobHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
@@ -74,7 +73,7 @@ public class ProposalDetailTask {
                 proposal.setCompletionFlag(CustomProposal.FlagEnum.COMPLETE.getCode());
             }
             //customProposalMapper.updateProposalDetailList(proposals);
-            XxlJobHelper.handleSuccess("更新提案详情定时任务完成");
+            log.debug("更新提案详情定时任务完成");
         } catch (Exception e) {
             log.error("更新提案详情定时任务异常", e);
             throw e;

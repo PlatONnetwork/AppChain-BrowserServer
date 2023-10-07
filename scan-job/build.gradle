@@ -77,6 +77,7 @@ task deployToTestEnv(dependsOn: ['build'], group: 'deploy') {
 dependencies {
     compile project(":scan-service")
     compile "org.springframework.boot:spring-boot-starter-web:$springbootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springbootVersion"
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.4'
     compile "com.alibaba:druid-spring-boot-starter:$druidVersion"

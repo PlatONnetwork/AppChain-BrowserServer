@@ -9,9 +9,8 @@ import com.platon.browser.dao.entity.NetworkStat;
 import com.platon.browser.dao.mapper.NetworkStatMapper;
 import com.platon.browser.enums.InternalAddressType;
 import com.platon.browser.utils.AppStatusUtil;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
@@ -40,8 +39,10 @@ public class BalanceUpdateTask {
      * 更新基金会账户余额
      * 每6分钟执行一次
      */
-    @XxlJob("balanceUpdateJobHandler")
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+/*    @XxlJob("balanceUpdateJobHandler")
+    @Transactional(rollbackFor = {Exception.class, Error.class})*/
+    @Scheduled(cron =  "${jobs.updateFundAccount.cron:* 0/6 * * * ?}")
+    @Transactional
     public void updateFundAccount() {
 
         // 只有程序正常运行才执行任务
@@ -55,7 +56,6 @@ public class BalanceUpdateTask {
 
         try {
             updateBalanceAndRestrictingBalance(InternalAddressType.FUND_ACCOUNT);
-            XxlJobHelper.handleSuccess("更新基金会账户余额完成");
         } catch (Exception e) {
             log.error("更新基金会账户余额任务异常", e);
         }
@@ -70,9 +70,11 @@ public class BalanceUpdateTask {
      * 更新内置合约账户余额
      * 每10秒执行一次
      */
-    @XxlJob("updateContractAccountJobHandler")
-    @Transactional(rollbackFor = {Exception.class, Error.class})
-    public void updateContractAccount() {
+    /*@XxlJob("updateContractAccountJobHandler")
+    @Transactional(rollbackFor = {Exception.class, Error.class})*/
+    @Scheduled(cron =  "${jobs.updateInnerContractAccount.cron:0/10 * * * * ?}")
+    @Transactional
+    public void updateInnerContractAccount() {
 
         // 只有程序正常运行才执行任务
         if (!AppStatusUtil.isRunning()) {
@@ -85,7 +87,7 @@ public class BalanceUpdateTask {
         watch.start("更新内置合约账户余额任务");
         try {
             updateBalanceAndRestrictingBalance(InternalAddressType.OTHER);
-            XxlJobHelper.handleSuccess("更新内置合约账户余额完成");
+
         } catch (Exception e) {
             log.error("更新内置合约账户余额任务异常", e);
         }

@@ -114,6 +114,13 @@ spring:
       erc20TxIndexName: ${platon.es-namespace}_erc20_tx
       erc721TxIndexName: ${platon.es-namespace}_erc721_tx
       erc1155TxIndexName: ${platon.es-namespace}_erc1155_tx
+
+  # 定时任务线程数量，保证每个Scheduled一个线程。这样每个scheduled直接不会互相阻塞
+  task:
+    scheduling:
+      pool:
+        size: 5
+
 # MyBatis配置（注意：一定要对应mapper映射xml文件的所在路径）
 mybatis:
   mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
@@ -224,6 +231,8 @@ v0150:
   adjustmentPipId: 14
   #调账日志输出文件
   adjustLogFilePath: ./logs/staking-delegate-adjust.log
+
+# 定时任务的参数配置
 task:
   #地址统计任务批次大小
   addressBatchSize: 1000
@@ -233,25 +242,15 @@ task:
   esRedisNotCatchupBatchSize: 10
   #已追上链,批量入ES和Redis的缓存大小
   esRedisCatchupBatchSize: 1
-xxl:
-  job:
-    admin:
-      #调度中心部署跟地址
-      addresses: http://10.0.0.34:8060/xxl-job-admin
-    #调度中心通讯TOKEN
-    accessToken: ENC(IZf5O7X2oiVstkwHNZUxEhPzDKInPh0TexHqj7b4YY39c10DzZaDqqQYWoSw8l2q)
-    #调度中心日志文件保存天数
-    logretentiondays: 90
-    executor:
-      #执行器AppName
-      appname: appchain-scan-agent
-      ip: 192.168.21.114
-      #执行器端口号
-      port: 9999
-      #执行器运行日志文件存储磁盘路径
-      logpath: ./logs/jobhandler
-      #执行器日志文件保存天数
-      logretentiondays: 90
+
+# 定时任务调度配置
+jobs:
+  # 每5秒执行一次
+  networkStatUpdate.cron: 0/5 * * * * ?
+
+  # 每1分钟执行一次
+  networkTxQtyUpdate.cron: 0 0/1 * * * ?
+
 apollo:
   bootstrap:
     # 是否开启 Apollo

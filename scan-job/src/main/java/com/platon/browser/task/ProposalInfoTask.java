@@ -1,6 +1,5 @@
 package com.platon.browser.task;
 
-import cn.hutool.core.util.StrUtil;
 import com.platon.browser.bean.CustomProposal;
 import com.platon.browser.bean.ProposalParticipantStat;
 import com.platon.browser.dao.custommapper.CustomProposalMapper;
@@ -13,7 +12,6 @@ import com.platon.browser.service.proposal.ProposalService;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.TaskUtil;
 import com.platon.contracts.ppos.dto.resp.TallyResult;
-import com.xxl.job.core.context.XxlJobHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
@@ -113,12 +111,11 @@ public class ProposalInfoTask {
                     }
                 }
             } catch (Exception e) {
-                XxlJobHelper.log(StrUtil.format("提案投票信息[{}]更新出错:{}", proposal.getHash(), e.getMessage()));
                 log.error("提案投票信息更新出错", e);
             }
         }
         //customProposalMapper.updateProposalInfoList(proposals);
-        XxlJobHelper.handleSuccess("提案投票信息更新成功");
+        log.debug("提案投票信息更新成功");
     }
 
 }

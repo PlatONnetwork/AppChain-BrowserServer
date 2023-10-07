@@ -12,11 +12,11 @@ public class SpeedTest {
     public static void main(String[] args){
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime start = LocalDateTime.parse("2023-09-11 17:33:15", dtf);
-        long startBlockNumber = 42541308;
+        LocalDateTime start = LocalDateTime.parse("2023-09-26 06:25:42", dtf);
+        long startBlockNumber = 10000;
 
-        LocalDateTime end = LocalDateTime.parse("2023-09-11 17:28:49", dtf);
-        long endBlockNumber = 42541236;
+        LocalDateTime end = LocalDateTime.parse("2023-09-28 02:41:14", dtf);
+        long endBlockNumber = 5110000;
         Duration duration = Duration.between(start, end);
         long seconds =   duration.toMillis() / 1000;
         System.out.println("中午");

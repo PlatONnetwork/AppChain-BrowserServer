@@ -13,10 +13,9 @@ import com.platon.browser.exception.HttpRequestException;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.HttpUtil;
 import com.platon.browser.utils.KeyBaseAnalysis;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,8 +54,10 @@ public class NodeUpdateTask {
      * @return: void
      * @date: 2021/12/7
      */
-    @XxlJob("nodeUpdateJobHandler")
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+  /*  @XxlJob("nodeUpdateJobHandler")
+    @Transactional(rollbackFor = {Exception.class, Error.class})*/
+    @Scheduled(cron =  "${jobs.nodeUpdate.cron:0/5 * * * * ?}")
+    @Transactional
     public void nodeUpdate() throws Exception {
         // 只有程序正常运行才执行任务
         if (!AppStatusUtil.isRunning()) return;
@@ -117,7 +118,7 @@ public class NodeUpdateTask {
             if (!updateNodeList.isEmpty()) {
                 stakeBusinessMapper.updateNodeForTask(updateNodeList);
             }
-            XxlJobHelper.handleSuccess("节点表补充成功");
+            log.debug("节点表补充成功");
         } catch (Exception e) {
             log.error("节点表补充异常", e);
             throw e;

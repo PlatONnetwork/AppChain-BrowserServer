@@ -19,10 +19,11 @@ import com.platon.browser.service.elasticsearch.query.ESQueryBuilderConstructor;
 import com.platon.browser.task.bean.NetworkStatistics;
 import com.platon.browser.utils.AppStatusUtil;
 import com.platon.browser.utils.CalculateUtils;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -81,7 +82,8 @@ public class NetworkStatUpdateTask {
      * @return: void
      * @date: 2021/12/15
      */
-    @XxlJob("networkStatUpdateJobHandler")
+    //@XxlJob("networkStatUpdateJobHandler")
+    @Scheduled(cron =  "${jobs.networkStatUpdate.cron:0/5 * * * * ?}")
     public void networkStatUpdate() {
         // 只有程序正常运行才执行任务
         if (AppStatusUtil.isRunning()) {
@@ -98,74 +100,72 @@ public class NetworkStatUpdateTask {
      * @return: void
      * @date: 2021/12/1
      */
-    @XxlJob("updateNetworkQtyJobHandler")
+    //@XxlJob("updateNetworkQtyJobHandler")
+    @Async
+    @Scheduled(cron =  "${jobs.networkTxQtyUpdate.cron:* 0/1 * * * ?}")
+    @Transactional
     public void updateNetworkQty() {
+        ESQueryBuilderConstructor count = new ESQueryBuilderConstructor();
+        //获取es交易数
+        Long totalCount = 0L;
         try {
-            ESQueryBuilderConstructor count = new ESQueryBuilderConstructor();
-            //获取es交易数
-            Long totalCount = 0L;
-            try {
-                ESResult<?> totalCountRes = esTransactionRepository.Count(count);
-                totalCount = totalCountRes.getTotal();
-            } catch (Exception e) {
-                log.error("获取es交易数异常", e);
-            }
-            //获取erc20交易数
-            Long erc20Count = 0L;
-            try {
-                ESResult<?> erc20Res = esErc20TxRepository.Count(count);
-                erc20Count = erc20Res.getTotal();
-            } catch (Exception e) {
-                log.error("获取erc20交易数异常", e);
-            }
-            //获取erc721交易数
-            Long erc721Count = 0L;
-            try {
-                ESResult<?> erc721Res = esErc721TxRepository.Count(count);
-                erc721Count = erc721Res.getTotal();
-            } catch (Exception e) {
-                log.error("获取erc721交易数异常", e);
-            }
-            //获取erc1155交易数
-            Long erc1155Count = 0L;
-            try {
-                ESResult<?> erc1155Res = esErc1155TxRepository.Count(count);
-                erc1155Count = erc1155Res.getTotal();
-            } catch (Exception e) {
-                log.error("获取erc1155交易数异常", e);
-            }
-            //获得地址数统计
-            int addressQty = statisticBusinessMapper.getNetworkStatisticsFromAddress();
-            //获得进行中的提案
-            int doingProposalQty = statisticBusinessMapper.getNetworkStatisticsFromProposal();
-            //获取提案总数
-            int proposalQty = statisticBusinessMapper.getProposalQty();
-            //获取节点操作数
-            long nodeOptSeq = customNOptBakMapper.getLastNodeOptSeq();
-            NetworkStat networkStat = networkStatCache.getNetworkStat();
-            networkStat.setTxQty(totalCount.intValue());
-            networkStat.setErc20TxQty(erc20Count.intValue());
-            networkStat.setErc721TxQty(erc721Count.intValue());
-            networkStat.setErc1155TxQty(erc1155Count.intValue());
-            networkStat.setAddressQty(addressQty);
-            networkStat.setDoingProposalQty(doingProposalQty);
-            networkStat.setProposalQty(proposalQty);
-            networkStat.setNodeOptSeq(nodeOptSeq);
-            String msg = StrUtil.format("更新交易统计数成功，交易总数为[{}],erc20交易数为[{}],erc721交易数为[{}],erc1155交易数为[{}],地址数为[{}],进行中提案总数为[{}],提案总数为[{}],节点操作数为[{}]",
-                    totalCount.intValue(),
-                    erc20Count.intValue(),
-                    erc721Count.intValue(),
-                    erc1155Count.intValue(),
-                    addressQty,
-                    doingProposalQty,
-                    proposalQty,
-                    nodeOptSeq);
-            XxlJobHelper.handleSuccess(msg);
-            log.debug(msg);
+            ESResult<?> totalCountRes = esTransactionRepository.Count(count);
+            totalCount = totalCountRes.getTotal();
         } catch (Exception e) {
-            log.error("更新交易统计数异常", e);
-            throw e;
+            log.error("获取es交易数异常", e);
         }
+        //获取erc20交易数
+        Long erc20Count = 0L;
+        try {
+            ESResult<?> erc20Res = esErc20TxRepository.Count(count);
+            erc20Count = erc20Res.getTotal();
+        } catch (Exception e) {
+            log.error("获取erc20交易数异常", e);
+        }
+        //获取erc721交易数
+        Long erc721Count = 0L;
+        try {
+            ESResult<?> erc721Res = esErc721TxRepository.Count(count);
+            erc721Count = erc721Res.getTotal();
+        } catch (Exception e) {
+            log.error("获取erc721交易数异常", e);
+        }
+        //获取erc1155交易数
+        Long erc1155Count = 0L;
+        try {
+            ESResult<?> erc1155Res = esErc1155TxRepository.Count(count);
+            erc1155Count = erc1155Res.getTotal();
+        } catch (Exception e) {
+            log.error("获取erc1155交易数异常", e);
+        }
+        //获得地址数统计
+        int addressQty = statisticBusinessMapper.getNetworkStatisticsFromAddress();
+        //获得进行中的提案
+        int doingProposalQty = statisticBusinessMapper.getNetworkStatisticsFromProposal();
+        //获取提案总数
+        int proposalQty = statisticBusinessMapper.getProposalQty();
+        //获取节点操作数
+        long nodeOptSeq = customNOptBakMapper.getLastNodeOptSeq();
+        NetworkStat networkStat = networkStatCache.getNetworkStat();
+        networkStat.setTxQty(totalCount.intValue());
+        networkStat.setErc20TxQty(erc20Count.intValue());
+        networkStat.setErc721TxQty(erc721Count.intValue());
+        networkStat.setErc1155TxQty(erc1155Count.intValue());
+        networkStat.setAddressQty(addressQty);
+        networkStat.setDoingProposalQty(doingProposalQty);
+        networkStat.setProposalQty(proposalQty);
+        networkStat.setNodeOptSeq(nodeOptSeq);
+        String msg = StrUtil.format("更新交易统计数成功，交易总数为[{}],erc20交易数为[{}],erc721交易数为[{}],erc1155交易数为[{}],地址数为[{}],进行中提案总数为[{}],提案总数为[{}],节点操作数为[{}]",
+                totalCount.intValue(),
+                erc20Count.intValue(),
+                erc721Count.intValue(),
+                erc1155Count.intValue(),
+                addressQty,
+                doingProposalQty,
+                proposalQty,
+                nodeOptSeq);
+        log.debug(msg);
+
     }
 
     protected void start() {
@@ -190,8 +190,6 @@ public class NetworkStatUpdateTask {
                                         availableStaking.toPlainString(),
                                         totalValue.toPlainString(),
                                         stakingValue.toPlainString());
-            XxlJobHelper.log(msg);
-            XxlJobHelper.handleSuccess(msg);
             log.debug(msg);
         } catch (Exception e) {
             log.error("网络统计任务出错:", e);

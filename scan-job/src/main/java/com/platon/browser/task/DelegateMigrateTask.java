@@ -6,9 +6,8 @@ import com.platon.browser.dao.entity.DelegationExample;
 import com.platon.browser.dao.mapper.DelegationMapper;
 import com.platon.browser.service.elasticsearch.EsDelegationService;
 import com.platon.browser.utils.AppStatusUtil;
-import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +39,11 @@ public class DelegateMigrateTask {
      * @return: void
      * @date: 2021/12/15
      */
-    @Transactional(rollbackFor = {Exception.class, Error.class})
-    @XxlJob("delegateMigrateJobHandler")
-    public void delegateMigrate() throws Exception {
+    /*@Transactional(rollbackFor = {Exception.class, Error.class})
+    @XxlJob("delegateMigrateJobHandler")*/
+    @Scheduled(cron =  "${jobs.delegateDataMigrateToES.cron:0/30  * * * * ?}")
+    @Transactional
+    public void delegateDataMigrateToES() throws Exception {
         // 只有程序正常运行才执行任务
         if (AppStatusUtil.isRunning()) start();
     }
@@ -57,7 +58,7 @@ public class DelegateMigrateTask {
             Set<Delegation> delegationSet = new HashSet<>(delegationList);
             esDelegationService.save(delegationSet);
             delegationMapper.batchDeleteIsHistory(delegationList);
-            XxlJobHelper.handleSuccess("委托历史迁移到ES完成");
+            log.debug("委托历史迁移到ES完成");
         } catch (Exception e) {
             log.error("委托历史迁移到ES异常", e);
             throw e;
