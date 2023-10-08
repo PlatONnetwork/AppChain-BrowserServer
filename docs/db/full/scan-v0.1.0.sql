@@ -161,11 +161,12 @@ CREATE TABLE `network_stat`
     PRIMARY KEY (`id`)
 );
 
+
 DROP TABLE IF EXISTS `node`;
 CREATE TABLE `node`
 (
     `node_id`                      char(130)        NOT NULL COMMENT '节点id',
-    `validator_id`                 bigint           NOT NULL COMMENT '节点的验证人编号',
+    `validator_id`                 decimal(32, 0)   NOT NULL COMMENT '节点的验证人编号',
     `stat_slash_multi_qty`         int              NOT NULL DEFAULT 0 COMMENT '多签举报次数',
     `stat_slash_low_qty`           int              NOT NULL DEFAULT 0 COMMENT '出块率低举报次数',
     `stat_block_qty`               bigint           NOT NULL DEFAULT 0 COMMENT '节点处块数统计',
