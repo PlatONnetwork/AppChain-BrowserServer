@@ -17,6 +17,7 @@ import com.platon.contracts.ppos.utils.EncoderUtils;
 import com.platon.protocol.Web3j;
 import com.platon.protocol.core.*;
 import com.platon.protocol.core.methods.request.Transaction;
+import com.platon.protocol.core.methods.response.PlatonBlock;
 import com.platon.protocol.core.methods.response.PlatonCall;
 import com.platon.tx.exceptions.ContractCallException;
 import com.platon.utils.JSONUtil;
@@ -332,6 +333,21 @@ public class SpecialApi {
             throw new BlankResponseException(BLANK_RES);
         }
         return result.getResult();
+    }
+
+    public PlatonBlock.Block getBlockByNumber(Web3jWrapper web3jWrapper, BigInteger blockNumber) throws Exception {
+        Request<?, PlatonBlock> request = new Request<>("hskchain_getBlockByNumber", Arrays.asList(convertBlockNumber(blockNumber), true), web3jWrapper.getWeb3jService(), PlatonBlock.class);
+        PlatonBlock result = request.send();
+        if (result == null) {
+            throw new BlankResponseException(String.format("链上查询区块函数类型:%s,返回为空!%s", "hskchain_getBlockByNumber", JSON.toJSONString(Thread.currentThread().getStackTrace())));
+        }
+        if (result.getError() != null ){
+            throw new ContractInvokeException(String.format("链上查询区块:%s,错误编码!%s,错误原因!%s", "hskchain_getBlockByNumber", result.getError().getCode(),result.getError().getMessage()));
+        }
+        if (null == result.getResult()){
+            throw new BlankResponseException(BLANK_RES);
+        }
+        return result.getBlock();
     }
 
     /**

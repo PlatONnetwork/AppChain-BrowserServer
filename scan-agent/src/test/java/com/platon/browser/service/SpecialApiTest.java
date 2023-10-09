@@ -3,14 +3,17 @@ package com.platon.browser.service;
 import com.alibaba.fastjson.JSON;
 import com.platon.browser.AgentApplication;
 import com.platon.browser.bean.*;
+import com.platon.browser.client.PlatOnClient;
 import com.platon.browser.client.SpecialApi;
 import com.platon.browser.client.Web3jWrapper;
 import com.platon.browser.utils.ChainVersionUtil;
+import com.platon.browser.utils.NodeUtil;
 import com.platon.contracts.ppos.dto.resp.Node;
 import com.platon.protocol.Web3j;
 import com.platon.protocol.Web3jService;
 import com.platon.protocol.core.DefaultBlockParameter;
 import com.platon.protocol.core.DefaultBlockParameterName;
+import com.platon.protocol.core.methods.response.PlatonBlock;
 import com.platon.protocol.http.HttpService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +32,35 @@ import java.util.List;
 public class SpecialApiTest {
 
     @Resource
+    PlatOnClient platOnClient;
+
+    @Resource
     SpecialApi specialApi;
 
+
+    @SneakyThrows
+    @Test
+    public void test_getBlockByNumber() {
+        Web3jService web3jService =  new HttpService("http://192.168.16.189:6789");
+        Web3jWrapper web3jWrapper = Web3jWrapper.builder().address("http://192.168.16.189:6789").web3jService(web3jService).web3j(Web3j.build(web3jService)).build();
+
+        PlatonBlock.Block block = specialApi.getBlockByNumber(web3jWrapper, new BigInteger("1"));
+
+        String nodeID = NodeUtil.getPublicKey(block);
+
+        System.out.println("node Id:" + nodeID);
+    }
+
+    @SneakyThrows
+    @Test
+    public void test_getBlockByNumber2() {
+        DefaultBlockParameter dp = DefaultBlockParameter.valueOf(BigInteger.valueOf(1));
+        PlatonBlock block = platOnClient.getWeb3jWrapper().getWeb3j().platonGetBlockByNumber(dp, true).send();
+
+        String nodeID = NodeUtil.getPublicKey(block.getBlock());
+
+        System.out.println("node Id:" + nodeID);
+    }
 
     @SneakyThrows
     @Test
