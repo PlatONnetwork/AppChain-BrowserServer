@@ -361,7 +361,7 @@ CREATE TABLE `staking`
     `low_rate_slash_count`         int              NOT NULL DEFAULT 0 COMMENT '节点零出块次数',
     `create_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`                  timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    -- `root_chain_tx_hash`           char(66)         NULL COMMENT 'PlatON上交易hash',
+    `root_chain_tx_hash`           char(66)         NULL COMMENT 'PlatON上交易hash',
     PRIMARY KEY (`node_id`, `staking_block_num`),
     KEY (`staking_addr`),
     INDEX (`status`)
@@ -739,6 +739,20 @@ CREATE TABLE `token_tracker` (
     PRIMARY KEY (`address`)
 )  COMMENT ='token探测表';
 */
+
+DROP TABLE IF EXISTS `root_chain_tx`;
+CREATE TABLE `root_chain_tx` (
+                                 `id` bigint NOT NULL AUTO_INCREMENT,
+                                 `root_chain_block_number` bigint NOT NULL COMMENT 'rootchain的块高',
+                                 `root_chain_tx_hash` VARCHAR(72) NOT NULL COMMENT 'rootchain的交易hash',
+                                 `root_chain_tx_index` int NOT NULL COMMENT 'rootchain的交易index',
+                                 `tx_hash` VARCHAR(72) NOT NULL COMMENT '交易hash',
+                                 `block_number` bigint NOT NULL COMMENT '块高',
+                                 `tx_type` varchar(20) NOT NULL COMMENT '交易类型：Stake, UnStake, Delegate, UnDelegate',
+                                 `tx_param_info` varchar(512) NOT NULL COMMENT '交易参数json',
+                                 `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                 PRIMARY KEY (`id`)
+) COMMENT = 'root chain交易信息同步表';
 
 DROP TABLE IF EXISTS `token_holder_balance_refresh_log`;
 CREATE TABLE `token_holder_balance_refresh_log`
