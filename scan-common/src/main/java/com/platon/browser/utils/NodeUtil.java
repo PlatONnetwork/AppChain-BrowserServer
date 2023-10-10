@@ -60,7 +60,7 @@ public class NodeUtil {
         return Sign.recoverFromSignature( v, new ECDSASignature(new BigInteger(1, r), new BigInteger(1, s)), msgHash);
     }
 
-    public static void main(String[] args){
+    public static void main1(String[] args){
         String sealHash = "0x1658b1674330f880010485239b3d938956d2eabaa21cfee66a70391b0d265336";
         byte[] msgHash = HexUtil.decode(sealHash);
         System.out.println("msgHash bytes:" + JSON.toJSONString(msgHash));
@@ -72,6 +72,24 @@ public class NodeUtil {
         BigInteger id =  Sign.recoverFromSignature( v, new ECDSASignature(new BigInteger(1, r), new BigInteger(1, s)), msgHash);
         String publicKey = id.toString(16);
         System.out.println("PublicKey:"+publicKey);
+    }
+
+    public static void main(String[] args){
+        PlatonBlock.Block block = new PlatonBlock.Block();
+        block.setParentHash("0xef99021b30d7caab822ff0629ba213a9be72d241b89cfe4a555d231066445f32");
+        block.setMiner("hsk1rft6tyjvz9535yfq49f0ajrmqpd6z8n45uxnck");
+        block.setStateRoot("0xd6577cfd7dc0eb4ac937edfa1ff878fe253044799c28448664cbd101e1a9db69");
+        block.setTransactionsRoot("0xd84e10d732662132f79c0f156d2a5744ac086af1f2dd7e79061e59cfd00ad0db");
+        block.setReceiptsRoot("0x27c539ea5678c560835cc2beadbc28fa773b46bd1e89a3f62626cd13d57bdffb");
+        block.setLogsBloom("0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000080000000000000008000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000020000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        block.setNumber("0x1");
+        block.setGasLimit("0xc012af6");
+        block.setGasUsed("0x5404");
+        block.setTimestamp("0x18B18C5D086");
+        block.setExtraData("0xda830104008868736b636861696e86676f312e3230856c696e7578000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e49d73");
+        block.setNonce("0x03eaa12a2503b4968818bdc0f95f7da28c21417a83fa4220364b8524869f280e6f7bef29c3a4c2314fa7f5b0bdfb28c40c9e05c823ea853a14c0a3898dcce4024a1f6a59599f7adff1ad7f05b2b4d3f9af");
+        System.out.println(cn.hutool.core.util.HexUtil.encodeHex(getMsgHash(block)));
+        System.out.println(block.getGasLimit().toString());
     }
 
 
