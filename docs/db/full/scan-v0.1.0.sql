@@ -770,10 +770,10 @@ CREATE TABLE `token_holder_balance_refresh_log`
 -- 初始化数据
 -- 还有部分基金会地址由运维手工导入
 INSERT INTO `internal_address` (`address`, `type`)
-VALUES ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7pn3ep', 1),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzsjx8h7', 2),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrdyjj2v', 3),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxlcypcy', 6);
+VALUES ('hsk1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpg53m7t', 1), -- 0x1000000000000000000000000000000000000001     锁仓合约
+       ('hsk1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzx8yds5', 2), -- 0x1000000000000000000000000000000000000002     质押合约
+       ('hsk1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrm3scdx', 3), -- 0x1000000000000000000000000000000000000003     质押激励池合约
+       ('hsk1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxfdxtlw', 6); -- 0x1000000000000000000000000000000000000006     委托激励池合约
 
 INSERT INTO `point_log`(`id`, `type`, `name`, `desc`, `position`, `create_time`, `update_time`)
 VALUES (1, 1, 'n_opt_bak', '节点操作迁移至es的断点记录', '0', '2021-12-01 07:50:41', '2021-12-01 07:50:41');
