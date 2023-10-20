@@ -336,13 +336,13 @@ public class SpecialApi {
     }
 
     public PlatonBlock.Block getBlockByNumber(Web3jWrapper web3jWrapper, BigInteger blockNumber) throws Exception {
-        Request<?, PlatonBlock> request = new Request<>("hskchain_getBlockByNumber", Arrays.asList(convertBlockNumber(blockNumber), true), web3jWrapper.getWeb3jService(), PlatonBlock.class);
+        Request<?, PlatonBlock> request = new Request<>("appchain_getBlockByNumber", Arrays.asList(convertBlockNumber(blockNumber), true), web3jWrapper.getWeb3jService(), PlatonBlock.class);
         PlatonBlock result = request.send();
         if (result == null) {
-            throw new BlankResponseException(String.format("链上查询区块函数类型:%s,返回为空!%s", "hskchain_getBlockByNumber", JSON.toJSONString(Thread.currentThread().getStackTrace())));
+            throw new BlankResponseException(String.format("链上查询区块函数类型:%s,返回为空!%s", "appchain_getBlockByNumber", JSON.toJSONString(Thread.currentThread().getStackTrace())));
         }
         if (result.getError() != null ){
-            throw new ContractInvokeException(String.format("链上查询区块:%s,错误编码!%s,错误原因!%s", "hskchain_getBlockByNumber", result.getError().getCode(),result.getError().getMessage()));
+            throw new ContractInvokeException(String.format("链上查询区块:%s,错误编码!%s,错误原因!%s", "appchain_getBlockByNumber", result.getError().getCode(),result.getError().getMessage()));
         }
         if (null == result.getResult()){
             throw new BlankResponseException(BLANK_RES);
