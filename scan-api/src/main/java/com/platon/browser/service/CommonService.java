@@ -213,9 +213,13 @@ public class CommonService {
         return bo;
     }
 
-    public BigDecimal turnValueSubInit(BigDecimal turn, NetworkStat networkStat){
+    public BigDecimal turnValueSubInit(BigDecimal turn, NetworkStat networkStat) {
         Integer yearNum = networkStat.getYearNum();
         BigDecimal remain = getRemainingOfFoundationInRestricting(yearNum);
+
+        if (turn.compareTo(remain) <= 0){
+            log.warn("redis中流通量:{}, 基金会在锁仓合约中的剩余基金:{}, 年份:{}", turn, remain, yearNum);
+        }
         return turn.subtract(remain);
     }
 
