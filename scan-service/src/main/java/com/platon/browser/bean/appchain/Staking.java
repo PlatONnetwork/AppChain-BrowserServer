@@ -17,6 +17,6 @@ public class Staking implements RootChainTxParam{
         return HexUtil.prefix(nodeId);
     }
     public String getNodeName(){
-        return "NodeName_" + validatorId;
+        return "Node_" + validatorId;
     }
 }

@@ -646,7 +646,7 @@ public class SpecialApi {
             node.setRestrictingPlan(null == validatorEx.getRestrictingPlan() ? "": Numeric.encodeQuantity(validatorEx.getRestrictingPlan()));
             node.setRestrictingPlanHes(null == validatorEx.getRestrictingPlanHes() ? "": Numeric.encodeQuantity(validatorEx.getRestrictingPlanHes()));
             node.setExternalId(null == validatorEx.getExternalId() ? "":validatorEx.getExternalId());
-            node.setNodeName(StringUtils.isBlank(validatorEx.getNodeName()) ? "NodeName_" + validatorEx.getValidatorId() : validatorEx.getNodeName());
+            node.setNodeName(StringUtils.isBlank(validatorEx.getNodeName()) ? "Node_" + validatorEx.getValidatorId() : validatorEx.getNodeName());
             node.setWebsite(null == validatorEx.getWebsite() ? "":validatorEx.getWebsite());
             node.setDetails(null == validatorEx.getDetails() ? "":validatorEx.getDetails());
             node.setValidatorTerm(validatorEx.getValidatorTerm());
