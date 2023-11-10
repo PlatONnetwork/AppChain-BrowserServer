@@ -74,7 +74,7 @@ spring:
   #ES索引配置
   elasticsearch:
     high-level-client:
-      hosts: 192.168.120.103,192.168.120.104,192.168.120.105
+      hosts: 192.168.9.191:7001,192.168.9.191:7002,192.168.9.191:7003,192.168.9.191:7004,192.168.9.191:7005,192.168.9.191:7006
       port: 9200
       schema: http
       username: ENC(VME69JEYLfmUXi3KuDQTWA==)
@@ -114,11 +114,11 @@ platon:
   web3j:
     #HTTP或WS 开发环境快进测试链：ws://192.168.120.151:7789,ws://192.168.120.151:7790; 开发环境现网链：ws://192.168.9.139:7789; 云环境现网链：ws://192.168.10.91:6790
     protocol: WS
-    addresses: 192.168.120.151:7789,192.168.120.151:7790
+    addresses: 192.168.16.189:6790
   # 质押节点统计年化率最多取多少个连续周期
   maxSettlePeriodCount4AnnualizedRateStat: 4
   #PlatON初始总发行量(LAT)
-  initIssueAmount: 10000000000
+  initIssueAmount: 100000000
   #每年固定增发比例
   addIssueRate: 0.025
   #每年增发分配给激励池的比例
@@ -138,7 +138,7 @@ platon:
     '9':7615018.00000000
   }
   # 初始内置节点默认质押金额(LAT)
-  defaultStakingLockedAmount: 150000
+  defaultStakingLockedAmount: 100
   #区块最大Gas限制
   maxBlockGasLimit: 201600000
   #提案url参数模板
@@ -150,7 +150,7 @@ platon:
   #keyBase api
   keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
   #链id
-  chainId: 210425
+  chainId: 68432
   #同步时的索引查询分页参数配置
   paging:
     erc20-transaction:

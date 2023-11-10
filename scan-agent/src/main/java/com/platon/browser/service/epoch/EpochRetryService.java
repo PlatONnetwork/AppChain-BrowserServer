@@ -1,5 +1,6 @@
 package com.platon.browser.service.epoch;
 
+import com.alibaba.fastjson.JSON;
 import com.platon.browser.bean.CommonConstant;
 import com.platon.browser.bean.ConfigChange;
 import com.platon.browser.bean.EpochInfo;
@@ -126,7 +127,7 @@ public class EpochRetryService {
      */
     @Retryable(value = Exception.class, maxAttempts = CommonConstant.reTryNum)
     public void consensusChange(BigInteger currentBlockNumber) {
-        log.debug("共识周期变更:{}({})", Thread.currentThread().getStackTrace()[1].getMethodName(), currentBlockNumber);
+        log.debug("共识周期变更，块高:{}", currentBlockNumber);
         try {
             // 当前块所处的共识周期
             BigInteger currentEpoch = EpochUtil.getEpoch(currentBlockNumber, chainConfig.getConsensusPeriodBlockCount());
@@ -139,6 +140,7 @@ public class EpochRetryService {
 
             // 前一周期的验证人
             List<Node> preNodes = specialApi.getHistoryValidatorList(platOnClient.getWeb3jWrapper(), lastBlockNumberOfPrevConsensusPeriod);
+            log.debug("前一周期:{},结束块高:{}的验证人:{}", currentEpoch, lastBlockNumberOfPrevConsensusPeriod, JSON.toJSONString(preNodes));
             preNodes.forEach(n -> n.setNodeId(HexUtil.prefix(n.getNodeId())));
             preValidators.clear();
             preValidators.addAll(preNodes);
@@ -150,10 +152,12 @@ public class EpochRetryService {
                 // 如果前一个周期的最后一个块是0，则查第0块时的验证人作为当前验证人
                 BigInteger targetBlockNumber = lastBlockNumberOfPrevConsensusPeriod.compareTo(BigInteger.ZERO) == 0 ? BigInteger.ZERO : lastBlockNumberOfPrevConsensusPeriod.add(BigInteger.ONE);
                 curNodes = specialApi.getHistoryValidatorList(platOnClient.getWeb3jWrapper(), targetBlockNumber);
+                log.debug("当前周期:{},起始块高:{}的验证人:{}", currentEpoch, targetBlockNumber, JSON.toJSONString(curNodes));
             }
             if (latestEpoch.compareTo(currentEpoch) == 0) {
                 // >>>>如果链上最新块所在周期==当前块所处周期, 则查询实时接口
                 curNodes = platOnClient.getLatestValidators();
+                log.debug("当前周期:{}的验证人:{}", currentEpoch, JSON.toJSONString(curNodes));
             }
             curNodes.forEach(n -> n.setNodeId(HexUtil.prefix(n.getNodeId())));
             curValidators.clear();

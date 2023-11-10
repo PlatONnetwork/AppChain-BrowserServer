@@ -21,3 +21,7 @@ dependencies {
 	compile 'io.projectreactor.netty:reactor-netty:0.8.10.RELEASE'
 }
 
+tasks.named('test') {
+	useJUnitPlatform()
+}
+

@@ -99,12 +99,12 @@ public class ProposalUpdateTask {
 
     private void updateProposalTallyInfo(){
         List<Proposal> unfinishedList = customProposalMapper.listUnfinished();
-        List<NetworkStat> networkStat = networkStatMapper.selectByExample(null);
-        if(networkStat.size()==0){
+        NetworkStat networkStat = networkStatMapper.selectByPrimaryKey(1);
+        if(unfinishedList.size()==0){
             return ;
         }
-        Long currentBlockNumber = networkStat.get(0).getCurNumber();
-        String currentBlockHash = networkStat.get(0).getCurBlockHash();
+        //Long currentBlockNumber = networkStat.get(0).getCurNumber();
+        String currentBlockHash = networkStat.getCurBlockHash();
         for (Proposal proposal : unfinishedList) {
             // 投票已经结束，不能获取投票人员情况
             // 在底层，投票人员情况是暂存在localDb，而不存链上
@@ -131,7 +131,7 @@ public class ProposalUpdateTask {
                     //设置参与人数
                     if (pps.getAccuVerifierAccount() != null && !pps.getAccuVerifierAccount().equals(proposal.getAccuVerifiers())) {
                         TaskUtil.console("当前块高[{}],提案结束块高[{}],提案投票[{}]的验证人总数[{}]->[{}]更新",
-                                networkStat.get(0).getCurNumber(),
+                                networkStat.getCurNumber(),
                                 proposal.getEndVotingBlock(),
                                 proposal.getHash(),
                                 proposal.getAccuVerifiers(),

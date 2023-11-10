@@ -2,7 +2,7 @@ package com.platon.browser.bean;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.platon.browser.utils.ChainVersionUtil;
-import com.platon.browser.utils.HexUtil;
+import lombok.Data;
 
 import java.math.BigInteger;
 
@@ -11,30 +11,21 @@ import java.math.BigInteger;
  * @author: chendongming@matrixelements.com
  * @create: 2019-11-22 10:18:43
  **/
+@Data
 public class NodeVersion {
+    @JSONField(name = "ProgramVersion", alternateNames = "programVersion")
     private Integer programVersion;
+
+    @JSONField(name = "ValidatorId", alternateNames = "validatorId")
+    private BigInteger ValidatorId;
+
+    @JSONField(name = "NodeId", alternateNames = "nodeId" )
+    private String nodeId;
+
     public Integer getProgramVersion(){
         return programVersion;
     }
-    @JSONField(name = "ProgramVersion")
-    private Integer bigVersion;
-    public void setBigVersion(String bigVersion){
-        this.programVersion = Integer.valueOf(bigVersion);
-        this.bigVersion = ChainVersionUtil.toBigVersion(new BigInteger(bigVersion)).intValue();
-    }
-    @JSONField(name = "NodeId")
-    private String nodeId;
-    public void setNodeId(String nodeId){
-        this.nodeId = HexUtil.prefix(nodeId);
-    }
 	public Integer getBigVersion() {
-		return bigVersion;
-	}
-	public void setBigVersion(Integer bigVersion) {
-        this.programVersion = bigVersion;
-		this.bigVersion = ChainVersionUtil.toBigVersion(new BigInteger(String.valueOf(bigVersion))).intValue();
-	}
-	public String getNodeId() {
-		return nodeId;
+		return ChainVersionUtil.toBigVersion(BigInteger.valueOf(programVersion)).intValue();
 	}
 }

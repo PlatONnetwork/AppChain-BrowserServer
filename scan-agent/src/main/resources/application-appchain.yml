@@ -148,24 +148,13 @@ logging:
   level:
     org.springframework: info
     org.springframework.retry: info
-    com.platon.browser: info
-    com.platon.browser.bootstrap: info
-    com.platon.browser.collection: info
-    com.platon.browser.collection.queue.handler: info
-    com.platon.browser.common: info
-    com.platon.browser.complement: info
-    com.platon.browser.complement.handler: info
-    com.platon.browser.complement.converter: info
-    com.platon.browser.persistence: info
-    com.platon.browser.persistence.handler: info
-    com.platon.browser.persistence.queue.handler: info
-    com.platon.browser.task: info
+    com.platon: debug
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
-  addressPrefix: hsk
+  addressPrefix: top
   # 金额显示单位
-  valueUnit: hashi
+  valueUnit: topi
   # 交易输入参数并行解码线程数
   txLogDecodeThreadNum: 200
   # Web3j访问地址
@@ -176,7 +165,7 @@ platon:
   # 质押节点统计年化率最多取多少个连续周期
   maxSettlePeriodCount4AnnualizedRateStat: 4
   #PlatON初始总发行量(LAT)
-  initIssueAmount: 10000000000
+  initIssueAmount: 100000000
   #每年固定增发比例
   addIssueRate: 0.025
   #每年增发分配给激励池的比例
@@ -185,18 +174,18 @@ platon:
   electionBackwardBlockCount: 20
   #10年内计算士基金会向激励池填充额度: <第几年-补贴金额(LAT)>
   foundationSubsidies: {
-    '1':62215742.00000000,
-    '2':55965742.00000000,
-    '3':49559492.00000000,
-    '4':42993086.00000000,
-    '5':36262520.00000000,
-    '6':29363689.00000000,
-    '7':22292388.00000000,
-    '8':15044304.00000000,
-    '9':7615018.00000000
+    '1':0.00000000,
+    '2':0.00000000,
+    '3':0.00000000,
+    '4':0.00000000,
+    '5':0.00000000,
+    '6':0.00000000,
+    '7':0.00000000,
+    '8':0.00000000,
+    '9':0.00000000
   }
   # 初始内置节点默认质押金额(LAT)
-  defaultStakingLockedAmount: 150000
+  defaultStakingLockedAmount: 100
   #区块最大Gas限制
   maxBlockGasLimit: 201600000
   #提案url参数模板
@@ -208,7 +197,7 @@ platon:
   #keyBase api
   keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
   #链id
-  chainId: 210425
+  chainId: 68432
   #同步时的索引查询分页参数配置
   paging:
     erc20-transaction:

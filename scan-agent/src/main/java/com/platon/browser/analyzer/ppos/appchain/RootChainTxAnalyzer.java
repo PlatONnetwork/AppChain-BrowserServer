@@ -7,6 +7,7 @@ import com.platon.browser.bean.ComplementNodeOpt;
 import com.platon.browser.bean.appchain.RootChainTx;
 import com.platon.browser.bean.appchain.Staking;
 import com.platon.browser.bean.appchain.UnStaking;
+import com.platon.browser.dao.custommapper.CustomInternalAddressMapper;
 import com.platon.browser.dao.custommapper.CustomNodeMapper;
 import com.platon.browser.dao.custommapper.StakeBusinessMapper;
 import com.platon.browser.dao.entity.Node;
@@ -54,12 +55,13 @@ public class RootChainTxAnalyzer extends PPOSAnalyzer<NodeOpt> {
     @Resource
     private StakeEpochService stakeEpochService;
 
+    @Resource
+    private CustomInternalAddressMapper customInternalAddressMapper;
+
     public NodeOpt stake(CollectionEvent event, Transaction tx, RootChainTx rootChainTx) {
         Staking stakingParam = (Staking)rootChainTx.parseTxParamByTxType();
 
         log.debug("current tx is a syncRootChainState tx, blockNumber:{}, txHash:{}, rootChainTxParam:{}", tx.getNum(), tx.getHash(), JSON.toJSONString(rootChainTx.getTxParam()));
-
-
 
         //BigInteger bigVersion = ChainVersionUtil.toBigVersion(stakingParam.getProgramVersion());
         BigInteger bigVersion = BigInteger.ZERO;
@@ -99,7 +101,13 @@ public class RootChainTxAnalyzer extends PPOSAnalyzer<NodeOpt> {
                 .build();
 
         //增加质押信息，节点信息
+        log.debug("处理root chain质押交易，增加质押节点和质押记录，块高：{}", event.getBlock().getNum());
         stakeBusinessMapper.create(businessParam);
+
+        //更新internal_address的质押合约表余额
+        if(stakingParam.getAmount()!=null && stakingParam.getAmount().compareTo(BigInteger.ZERO)>0){
+            customInternalAddressMapper.updateStakingContractBalance(stakingParam.getAmount());
+        }
 
         updateNodeCache(stakingParam.getNodeId(), stakingParam.getNodeName(), BigInteger.valueOf(event.getBlock().getNum()));
 

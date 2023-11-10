@@ -6,7 +6,9 @@ import com.platon.browser.bean.*;
 import com.platon.browser.client.PlatOnClient;
 import com.platon.browser.client.SpecialApi;
 import com.platon.browser.client.Web3jWrapper;
+import com.platon.browser.service.block.BlockService;
 import com.platon.browser.utils.ChainVersionUtil;
+import com.platon.browser.utils.HexUtil;
 import com.platon.browser.utils.NodeUtil;
 import com.platon.contracts.ppos.dto.resp.Node;
 import com.platon.protocol.Web3j;
@@ -25,6 +27,7 @@ import javax.annotation.Resource;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @SpringBootTest(classes = { AgentApplication.class })
@@ -36,6 +39,19 @@ public class SpecialApiTest {
 
     @Resource
     SpecialApi specialApi;
+
+    @Resource
+    BlockService blockService;
+
+
+    @SneakyThrows
+    @Test
+    public void getBlockAsync() {
+        CompletableFuture<PlatonBlock> blockCF = blockService.getBlockAsync(0L);
+        PlatonBlock.Block rawBlock = blockCF.get().getBlock();
+        System.out.println("rawBlock Id:" + rawBlock.getNumber());
+    }
+
 
 
     @SneakyThrows
@@ -62,19 +78,44 @@ public class SpecialApiTest {
         System.out.println("node Id:" + nodeID);
     }
 
+
+    @SneakyThrows
+    @Test
+    public void test_getLatestBlockNumber() {
+        BigInteger lastBlockNumber = platOnClient.getLatestBlockNumber();
+        System.out.println("lastBlockNumber:" + lastBlockNumber.toString());
+    }
+
+
+
+    @SneakyThrows
+    @Test
+    public void getLatestValidators() {
+        List<Node> list = platOnClient.getLatestValidators();
+        System.out.println("getLatestValidators:" + JSON.toJSONString(list));
+
+        List<Node> curNodes = specialApi.getHistoryValidatorList(platOnClient.getWeb3jWrapper(), new BigInteger("14580"));
+        curNodes.forEach(n -> n.setNodeId(HexUtil.prefix(n.getNodeId())));
+       /* Request<?, NodeResult> request = new Request<>("debug_getConsensusNodeList", Arrays.asList(), platOnClient.getWeb3jWrapper().getWeb3jService(), NodeResult.class);
+        NodeResult result = request.send();
+        System.out.println("debug_getConsensusNodeList:" + JSON.toJSONString(result.getResult()));*/
+
+    }
+
     @SneakyThrows
     @Test
     public void test_getNodeVersion() {
-        Web3jService web3jService =  new HttpService("http://192.168.16.189:6789");
-        Web3jWrapper web3jWrapper = Web3jWrapper.builder().address("http://192.168.16.189:6789").web3jService(web3jService).web3j(Web3j.build(web3jService)).build();
+        /*Web3jService web3jService =  new HttpService("ws://192.168.112.172:6790");
+        Web3jWrapper web3jWrapper = Web3jWrapper.builder().address("ws://192.168.112.172:6790").web3jService(web3jService).web3j(Web3j.build(web3jService)).build();
+        */
 
-
-        List<NodeVersion> nodeVersionList = specialApi.getNodeVersionList(web3jWrapper);
+        List<NodeVersion> nodeVersionList = specialApi.getNodeVersionList(platOnClient.getWeb3jWrapper());
 
         for (NodeVersion nodeVersion: nodeVersionList ) {
             System.out.println("node Id:" + nodeVersion.getNodeId() + ",  Version:" + ChainVersionUtil.toStringVersion(new BigInteger(String.valueOf(nodeVersion.getProgramVersion()))));
         }
     }
+
 
     @SneakyThrows
     @Test

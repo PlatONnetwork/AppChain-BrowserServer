@@ -13,6 +13,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -29,6 +30,7 @@ import javax.sql.DataSource;
 @SpringBootApplication
 @EnableEncryptableProperties
 @EnableAsync
+@ComponentScan(basePackages = {"com.platon.browser.**"})
 @MapperScan(basePackages = {"com.platon.browser.dao.mapper", "com.platon.browser.dao.custommapper"})
 public class BrowserApiApplication implements ApplicationRunner {
 

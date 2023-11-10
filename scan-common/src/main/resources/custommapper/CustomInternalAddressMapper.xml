@@ -119,4 +119,10 @@
       where address = #{item.address}
     </foreach>
   </update>
+
+  <update id="updateStakingContractBalance">
+    update internal_address
+    set balance = balance + #{changedValue}
+    where type = 2
+  </update>
 </mapper>

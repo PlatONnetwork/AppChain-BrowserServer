@@ -11,10 +11,10 @@ import java.math.BigInteger;
  **/
 public class HistoryLowRateSlash {
     // 被处罚节点Id
-    @JSONField(name = "NodeId")
+    @JSONField(name = "NodeId", alternateNames = "nodeId")
     private String nodeId;
     // 处罚金额
-    @JSONField(name = "Amount")
+    @JSONField(name = "Amount", alternateNames = "amount")
     private BigInteger amount;
 
     public String getNodeId() {

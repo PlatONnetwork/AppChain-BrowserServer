@@ -1,5 +1,6 @@
 package com.platon.browser.bootstrap.service;
 
+import com.alibaba.fastjson.JSON;
 import com.platon.browser.bean.AnnualizedRateInfo;
 import com.platon.browser.bean.CollectionNetworkStat;
 import com.platon.browser.bean.CustomNode;
@@ -11,6 +12,7 @@ import com.platon.browser.cache.NodeCache;
 import com.platon.browser.cache.ProposalCache;
 import com.platon.browser.config.BlockChainConfig;
 import com.platon.browser.dao.custommapper.CustomGasEstimateMapper;
+import com.platon.browser.dao.custommapper.CustomInternalAddressMapper;
 import com.platon.browser.dao.entity.GasEstimate;
 import com.platon.browser.dao.entity.NetworkStat;
 import com.platon.browser.dao.entity.Staking;
@@ -25,10 +27,10 @@ import com.platon.browser.service.elasticsearch.*;
 import com.platon.browser.service.epoch.EpochRetryService;
 import com.platon.browser.service.govern.ParameterService;
 import com.platon.browser.service.ppos.StakeEpochService;
+import com.platon.browser.service.redis.RedisImportService;
 import com.platon.browser.utils.EpochUtil;
 import com.platon.contracts.ppos.dto.resp.Node;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -115,6 +117,12 @@ public class InitializationService {
     @Resource
     private EsTransferTxRepository esTransferTxRepository;
 
+    @Resource
+    private RedisImportService redisImportService;
+
+    @Resource
+    private CustomInternalAddressMapper customInternalAddressMapper;
+
     /**
      * 进入应用初始化子流程
      *
@@ -162,6 +170,9 @@ public class InitializationService {
             networkStatCache.init(networkStat);
             // 初始化内置地址
             newAddressCache.initForBlock0();
+
+            redisImportService.batchClear();
+
             return initialResult;
         }
 
@@ -243,6 +254,8 @@ public class InitializationService {
         chainConfig.getDefaultStakingList().forEach(staking -> defaultStakingMap.put(staking.getNodeId(), staking));
 
         List<Node> nodeList = epochRetryService.getPreVerifiers();
+        BigInteger totalStaking = BigInteger.ZERO;
+
         for (int index = 0; index < nodeList.size(); index++) {
             Node v = nodeList.get(index);
             Staking staking = new Staking();
@@ -255,15 +268,20 @@ public class InitializationService {
             staking.setStatus(Staking.StatusEnum.CANDIDATE.getCode());
             staking.setIsInit(Staking.YesNoEnum.YES.getCode());
             staking.setIsSettle(Staking.YesNoEnum.YES.getCode());
+            //todo: lvxiayi 2023/11/10  这个是从配置文件里获取的。
             staking.setStakingLocked(chainConfig.getDefaultStakingLockedAmount());
+            //累计初始质押金，写入internal_address的质押合约表余额。因为应用链的质押是在PlatON上发生，这个质押金额不会写入应用链内置质押合约的地址余额。
+            // todo:但是应用链底层应该应该有地方保存质押金的，可以提供获取所有质押金的rpc接口，这样就不用scan自己累计了，而是直接获取底层的，这样可以和底层数据保持一致。
+            totalStaking = totalStaking.add(staking.getStakingLocked().toBigInteger());
+
             // 如果当前候选节点在共识周期验证人列表，则标识其为共识周期节点
             if (validatorSet.contains(v.getNodeId())) {
                 staking.setIsConsensus(Staking.YesNoEnum.YES.getCode());
             }
 
-            if (StringUtils.isBlank(staking.getNodeName())) {
+            /*if (StringUtils.isBlank(staking.getNodeName())) {
                 staking.setNodeName("platon.node." + (index + 1));
-            }
+            }*/
 
             // 更新年化率信息, 由于是周期开始，所以只记录成本，收益需要在结算周期切换时算
             AnnualizedRateInfo ari = new AnnualizedRateInfo();
@@ -327,11 +345,19 @@ public class InitializationService {
         // 入库
         List<com.platon.browser.dao.entity.Node> returnData = new ArrayList<>(nodes);
         if (!nodes.isEmpty()) {
+            log.debug("初始化节点信息：{}", JSON.toJSONString(returnData));
             nodeMapper.batchInsert(returnData);
         }
         if (!stakingList.isEmpty()) {
+            log.debug("初始化质押信息：{}", JSON.toJSONString(returnData));
             stakingMapper.batchInsert(new ArrayList<>(stakingList));
         }
+
+        //更新internal_address的质押合约表余额
+        if(totalStaking.compareTo(BigInteger.ZERO)>0){
+            customInternalAddressMapper.updateStakingContractBalance(totalStaking);
+        }
+
         return returnData;
     }
 

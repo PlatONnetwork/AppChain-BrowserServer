@@ -95,7 +95,7 @@ public class StakeCreateAnalyzer extends PPOSAnalyzer<NodeOpt> {
                 .unStakeEndBlock(unStakeEndBlock)
                 .settleEpoch(event.getEpochMessage().getSettleEpochRound().intValue())
                 .build();
-
+        log.debug("处理质押交易，增加质押节点和质押记录，块高：{}", event.getBlock().getNum());
         stakeBusinessMapper.create(businessParam);
 
         updateNodeCache(HexUtil.prefix(txParam.getNodeId()), txParam.getNodeName(), stakingBlockNum);

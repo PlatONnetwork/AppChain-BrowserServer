@@ -110,11 +110,11 @@ public class AddressServiceTest extends ApiTestMockBase {
         List<RestrictingBalance> restrictingBalances = new ArrayList<RestrictingBalance>();
         RestrictingBalance restrictingBalance = new RestrictingBalance();
         restrictingBalance.setAccount("0x0000000000000000000000000000000000000000");
-        restrictingBalance.setFreeBalance("0x10");
-        restrictingBalance.setRestrictingPlanLockedAmount("0x10");
-        restrictingBalance.setRestrictingPlanPledgeAmount("0x10");
+        restrictingBalance.setFreeBalance(BigInteger.TEN);
+        restrictingBalance.setRestrictingPlanLockedAmount(BigInteger.TEN);
+        restrictingBalance.setRestrictingPlanPledgeAmount(BigInteger.TEN);
         restrictingBalances.add(restrictingBalance);
-        when(specialApi.getRestrictingBalance(any(), any())).thenReturn(restrictingBalances);
+        when(specialApi.getRestrictingBalance(any(), anyString())).thenReturn(restrictingBalances);
         Web3jWrapper web3jWrapper = mock(Web3jWrapper.class);
         when(platonClient.getWeb3jWrapper()).thenReturn(web3jWrapper);
         Web3j web3j = mock(Web3j.class);
@@ -154,11 +154,11 @@ public class AddressServiceTest extends ApiTestMockBase {
         List<RestrictingBalance> restrictingBalances = new ArrayList<RestrictingBalance>();
         RestrictingBalance restrictingBalance = new RestrictingBalance();
         restrictingBalance.setAccount("0x1000000000000000000000000000000000000001");
-        restrictingBalance.setFreeBalance("0x10");
-        restrictingBalance.setRestrictingPlanLockedAmount("0x10");
-        restrictingBalance.setRestrictingPlanPledgeAmount("0x10");
+        restrictingBalance.setFreeBalance(BigInteger.TEN);
+        restrictingBalance.setRestrictingPlanLockedAmount(BigInteger.TEN);
+        restrictingBalance.setRestrictingPlanPledgeAmount(BigInteger.TEN);
         restrictingBalances.add(restrictingBalance);
-        when(specialApi.getRestrictingBalance(any(), any())).thenReturn(restrictingBalances);
+        when(specialApi.getRestrictingBalance(any(), anyString())).thenReturn(restrictingBalances);
         Web3jWrapper web3jWrapper = mock(Web3jWrapper.class);
         when(platonClient.getWeb3jWrapper()).thenReturn(web3jWrapper);
 

@@ -19,7 +19,7 @@ public class StakingStatisticNewResp {
 
     private BigDecimal stakingValue; // 质押总数
 
-    private BigDecimal delegationValue; // 质押委托总数
+    private BigDecimal delegationValue; // 委托总数
 
     private BigDecimal issueValue; // 发行量
 

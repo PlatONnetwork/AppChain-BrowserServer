@@ -1,14 +1,14 @@
 {
   "context":"/browser-server",
-  "siteName":"HASHKEY scan",
-  "headerChainName":"HASHKEY Mainnet",
-  "chainName":"HASHKEY",
-  "copyRight":"HASHKEY",
+  "siteName":"AppChain scan",
+  "headerChainName":"AppChain Mainnet",
+  "chainName":"AppChain",
+  "copyRight":"AppChain",
   "logo":"/images/logo.svg",
   "links": [
     {
       "order": 0,
-      "name":{"cn":"关于HASHKEY","en":"About HASHKEY"},
+      "name":{"cn":"关于AppChain","en":"About AppChain"},
       "logo": "",
       "url":{"cn":"https://www.platon.network","en": "https://www.platon.network/en"}
     },
@@ -108,15 +108,15 @@
   ],
   "metamask": {
     "title": {
-      "cn": "HASHKEY 主网",
-      "en": "HASHKEY Mainnet Network"
+      "cn": "AppChain 主网",
+      "en": "AppChain Mainnet Network"
     },
-    "chainName": "HASHKEY Mainnet Network",
+    "chainName": "AppChain Mainnet Network",
     "chainId": 230615,
     "rpcUrl": "http://8.219.154.203:7789",
     "nativeCurrency": {
-      "name": "HASHKEY",
-      "symbol": "HSK",
+      "name": "AppChain",
+      "symbol": "APP",
       "decimals": 18
     },
     "blockExplorerUrl": "http://47.241.95.207"

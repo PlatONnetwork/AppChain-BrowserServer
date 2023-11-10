@@ -193,7 +193,9 @@ public class SpecialApi {
         if (result.getResult() == null) {
             throw new BlankResponseException(BLANK_RES);
         }
-        return convertValidatorExToNode(result.getResult());
+        List<Node> verifierList = convertValidatorExToNode(result.getResult());
+        log.debug("get blockNumber: {}, history verifiers from chain:{}", lastBlockNumberOfPrevSettlePeriod.toString(), JSON.toJSONString(verifierList));
+        return verifierList;
     }
 
     /**
@@ -219,7 +221,10 @@ public class SpecialApi {
         if (result.getResult() == null) {
             throw new BlankResponseException(BLANK_RES);
         }
-        return convertValidatorExToNode(result.getResult());
+        List<Node> validatorList = convertValidatorExToNode(result.getResult());
+
+        log.debug("get blockNumber: {}, history validators from chain:{}", lastBlockNumberOfPrevConsensusPeriod.toString(), JSON.toJSONString(validatorList));
+        return validatorList;
     }
 
     /**
@@ -655,7 +660,6 @@ public class SpecialApi {
             node.setDelegateRewardTotal(null == validatorEx.getDelegateRewardTotal() ? "": Numeric.encodeQuantity(validatorEx.getDelegateRewardTotal()));
             nodes.add(node);
         }
-        log.debug("get nodes from china:{}", JSON.toJSONString(nodes));
         return nodes;
     }
 

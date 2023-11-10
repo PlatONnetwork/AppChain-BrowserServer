@@ -185,7 +185,7 @@ public class NetworkStatUpdateTask {
             //实时质押总数
             BigDecimal stakingValue = networkStatistics.getStakingValue() == null ? BigDecimal.ZERO : networkStatistics.getStakingValue();
             networkStatCache.updateByTask(turnValue, availableStaking, totalValue, stakingValue);
-            String msg = StrUtil.format("网络统计任务成功，流通量[{}]，可使用质押量[{}]，实时质押委托总数[{}],实时质押总数[{}]",
+                String msg = StrUtil.format("网络统计任务成功，流通量[{}]，可使用质押量[{}]，实时质押委托总数[{}],实时质押总数[{}]",
                                         turnValue.toPlainString(),
                                         availableStaking.toPlainString(),
                                         totalValue.toPlainString(),

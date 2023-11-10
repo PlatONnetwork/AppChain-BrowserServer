@@ -12,6 +12,7 @@ import com.platon.browser.dao.custommapper.CustomInternalAddressMapper;
 import com.platon.browser.dao.custommapper.CustomNodeMapper;
 import com.platon.browser.dao.custommapper.CustomRpPlanMapper;
 import com.platon.browser.dao.entity.NetworkStat;
+import com.platon.browser.enums.InternalAddressType;
 import com.platon.browser.service.account.AccountService;
 import com.platon.browser.utils.CommonUtil;
 import com.platon.browser.utils.EpochUtil;
@@ -166,7 +167,7 @@ public class CommonService {
         }
     }
     /**
-     * 查询统计的余额
+     * 查询内置地址（锁仓合约，质押合约，质押激励池合约，委托激励池合约）的余额和锁仓余额，对于基金会地址，只查询需要用于计算的地址。
      *
      * @param
      * @return java.util.List<com.platon.browser.bean.CountBalance>
@@ -178,8 +179,9 @@ public class CommonService {
     }
 
     /**
-     * 获取总质押和质押率分母
-     *
+     * 从本地数据库中，
+     * 获取(总质押+总委托)和质押率分母
+     * 总质押 + 总委托 = 内置质押合约上的余额
      * @param networkStatRedis:
      * @return: com.platon.browser.bean.StakingBO
      * @date: 2021/11/24
@@ -188,16 +190,16 @@ public class CommonService {
         StakingBO bo = new StakingBO();
         List<CountBalance> list = countBalance();
         // 获取实时质押合约余额
-        CountBalance stakingValue = list.stream().filter(v -> v.getType() == 2).findFirst().orElseGet(CountBalance::new);
+        CountBalance stakingValue = list.stream().filter(v -> v.getType() == InternalAddressType.STAKE_CONTRACT.getCode()).findFirst().orElseGet(CountBalance::new);
         bo.setTotalStakingValue(stakingValue.getFree());
         log.debug("实时质押合约余额(总质押)为[{}]", stakingValue.getFree().toPlainString());
         BigDecimal issueValue = networkStatRedis.getIssueValue();
         // 获取实时委托奖励池合约余额
-        CountBalance delegationValue = list.stream().filter(v -> v.getType() == 6).findFirst().orElseGet(CountBalance::new);
+        CountBalance delegationValue = list.stream().filter(v -> v.getType() == InternalAddressType.DELEGATE_CONTRACT.getCode()).findFirst().orElseGet(CountBalance::new);
         // 实时激励池余额
-        CountBalance incentivePoolValue = list.stream().filter(v -> v.getType() == 3).findFirst().orElseGet(CountBalance::new);
+        CountBalance incentivePoolValue = list.stream().filter(v -> v.getType() == InternalAddressType.INCENTIVE_CONTRACT.getCode()).findFirst().orElseGet(CountBalance::new);
         // 获取实时所有基金会账户余额
-        CountBalance foundationValue = list.stream().filter(v -> v.getType() == 0).findFirst().orElseGet(CountBalance::new);
+        CountBalance foundationValue = list.stream().filter(v -> v.getType() == InternalAddressType.FUND_ACCOUNT.getCode()).findFirst().orElseGet(CountBalance::new);
         BigDecimal stakingDenominator = issueValue.subtract(incentivePoolValue.getFree()).subtract(delegationValue.getFree()).subtract(foundationValue.getFree()).subtract(foundationValue.getLocked());
         log.debug("质押率分母[{}]=总发行量[{}]-实时激励池余额[{}]-实时委托奖励池合约余额[{}]-实时所有基金会账户余额[{}]-实时所有基金会账户锁仓余额[{}];",
                   stakingDenominator.toPlainString(),

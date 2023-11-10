@@ -65,6 +65,19 @@ public class RedisImportService {
      */
     private AtomicBoolean isRetry = new AtomicBoolean(false);
 
+    /**
+     * 首次同步链数据，或者重新同步链数据，都需要清理redis
+     */
+    public void batchClear() {
+        log.debug("清理redis缓存");
+        redisBlockService.clear();
+        redisTransactionService.clear();
+        redisStatisticService.clear();
+        redisErc20TxService.clear();
+        redisErc721TxService.clear();
+        redisErc1155TxService.clear();
+    }
+
     private <T> void submit(AbstractRedisService<T> service, Set<T> data, boolean serialOverride, CountDownLatch latch, RedisKeyEnum redisKeyEnum, String traceId) {
         EXECUTOR.submit(() -> {
             try {

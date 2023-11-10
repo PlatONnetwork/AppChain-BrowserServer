@@ -22,7 +22,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -38,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @EnableRetry
-@Configuration// 执行单元测试，需要注释掉 @Configuration，@SpringBootApplication
+//@Configuration// 执行单元测试，需要注释掉 @Configuration，@SpringBootApplication
 @EnableScheduling  // 执行单元测试，需要注释掉 @Configuration，@SpringBootApplication
 @SpringBootApplication// 执行单元测试，需要注释掉 @Configuration，@SpringBootApplication
 @EnableEncryptableProperties

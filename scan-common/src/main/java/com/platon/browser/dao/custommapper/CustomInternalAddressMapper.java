@@ -6,6 +6,7 @@ import com.platon.browser.dao.entity.InternalAddress;
 import com.platon.browser.dao.entity.InternalAddressExample;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,4 +52,12 @@ public interface CustomInternalAddressMapper {
      * @param values
      */
     void updateBalanceAndRestrictingBalance(Collection<InternalAddress> values);
+
+    /**
+     * 修改内置质押合约余额，当作所有质押金额。
+     * 如果是增加，则 changedValue > 0
+     * 如果是减少，则 changedValue < 0
+     * @param changedValue
+     */
+    void updateStakingContractBalance(@Param("changedValue")BigInteger changedValue);
 }

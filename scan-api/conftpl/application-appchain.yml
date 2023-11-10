@@ -118,10 +118,10 @@ mybatis:
   mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
   # 实体类别名配置（注意：对应实体类的路径）
   type-aliases-package: com.platon.browser.dao.entity
-profile: platon
+profile: appchain
 #性能配置
 server:
-  port: 40010
+  port: 40000
   tomcat:
     max-connections: 20000
     threads:
@@ -134,28 +134,24 @@ logging:
   #日志级别
   level:
     org.springframework: info
-    com.platon.browser: info
-    com.platon.browser.service: info
-    com.platon.browser.task: info
-    com.platon.browser.client: info
-    com.platon.browser.dao: info
+    com.platon.browser: debug
 #PlatOn相关配置
 platon:
   # 地址HRP前缀
-  addressPrefix: lat
+  addressPrefix: top
   # 金额显示单位
-  valueUnit: LAT
+  valueUnit: topi
   # 交易输入参数并行解码线程数
   txLogDecodeThreadNum: 200
   # Web3j访问地址
   web3j:
     #HTTP或WS 开发环境快进测试链：ws://192.168.120.151:7789,ws://192.168.120.151:7790; 开发环境现网链：ws://192.168.9.139:7789; 云环境现网链：ws://192.168.10.91:6790
     protocol: WS
-    addresses: 192.168.9.139:7789
+    addresses: 192.168.16.189:6790
   # 质押节点统计年化率最多取多少个连续周期
   maxSettlePeriodCount4AnnualizedRateStat: 4
   #PlatON初始总发行量(LAT)
-  initIssueAmount: 10000000000
+  initIssueAmount: 100000000
   #每年固定增发比例
   addIssueRate: 0.025
   #每年增发分配给激励池的比例
@@ -164,18 +160,18 @@ platon:
   electionBackwardBlockCount: 20
   #10年内计算士基金会向激励池填充额度: <第几年-补贴金额(LAT)>
   foundationSubsidies: {
-    '1':62215742.00000000,
-    '2':55965742.00000000,
-    '3':49559492.00000000,
-    '4':42993086.00000000,
-    '5':36262520.00000000,
-    '6':29363689.00000000,
-    '7':22292388.00000000,
-    '8':15044304.00000000,
-    '9':7615018.00000000
+    '1':0.00000000,
+    '2':0.00000000,
+    '3':0.00000000,
+    '4':0.00000000,
+    '5':0.00000000,
+    '6':0.00000000,
+    '7':0.00000000,
+    '8':0.00000000,
+    '9':0.00000000
   }
   # 初始内置节点默认质押金额(LAT)
-  defaultStakingLockedAmount: 150000
+  defaultStakingLockedAmount: 100
   #区块最大Gas限制
   maxBlockGasLimit: 201600000
   #提案url参数模板
@@ -185,7 +181,7 @@ platon:
   #keyBase api
   keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
   #链id
-  chainId: 210425
+  chainId: 68432
   #Redis命名空间
   redis-namespace: browser:${profile}
   #Es索引命名空间
